@@ -1,0 +1,271 @@
+{
+  "results": [
+    {
+      "planet": "venus_like_with_ph3",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": 30.0,
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "planet": "mars_like_no_life",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": 30.0,
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "planet": "earth_like_with_life",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": 30.0,
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "planet": "K2-18b",
+      "reported_status": "claimed",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 0.0,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": null,
+          "confidence": 0.0
+        }
+      ]
+    },
+    {
+      "planet": "Kepler-186f",
+      "reported_status": "candidate",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 0.0,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": 30.1163609316355,
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "planet": "Kepler-452b",
+      "reported_status": "none",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.24916416553477,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": null,
+          "confidence": 0.0
+        }
+      ]
+    },
+    {
+      "planet": "jwst_lhs475b_published",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": 0.0,
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "planet": "jwst_k218b_published",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 0.0,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": 30.0,
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "planet": "jwst_wasp39b_abiotic",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": null,
+          "confidence": 0.0
+        }
+      ]
+    },
+    {
+      "planet": "jwst_wasp39b_published",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": null,
+          "confidence": 0.0
+        }
+      ]
+    },
+    {
+      "planet": "jwst_trappist1e_future",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": null,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": null,
+          "confidence": 0.0
+        }
+      ]
+    },
+    {
+      "planet": "jwst_k218b_biosignature",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 0.0,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": 30.0,
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "planet": "2I_borisov_spectrum",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": null,
+          "confidence": 0.0
+        }
+      ]
+    },
+    {
+      "planet": "3I_ATLAS_jwst_real",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": 30.0,
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "planet": "jwst_k218b_niriss",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": 30.0,
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "planet": "jwst_trappist1e_nirspec",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": 30.0,
+          "confidence": 1.0
+        }
+      ]
+    },
+    {
+      "planet": "jwst_wasp96b_nirspec",
+      "reported_status": "unknown",
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": null,
+          "confidence": 0.0
+        }
+      ]
+    }
+  ]
+}

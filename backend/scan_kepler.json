@@ -1,0 +1,58 @@
+{
+  "results": [
+    {
+      "planet": "Kepler-186f",
+      "file": "Kepler-186f.csv",
+      "snapshot_data": {
+        "co2_ppm": 393.7118046581777,
+        "ch4_ppm": 5.8161023290887615,
+        "eq_temp_k": 258.39390000000003,
+        "gh_temp_k": 288.5102609316355,
+        "stellar_flux": 1.045252
+      },
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 1.83054639749479,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": 30.1163609316355,
+          "confidence": 1.0
+        }
+      ],
+      "success": true
+    },
+    {
+      "planet": "Kepler-452b",
+      "file": "Kepler-452b.csv",
+      "snapshot_data": {
+        "co2_ppm": 295.09444967065593,
+        "ch4_ppm": 1.662634835326995,
+        "eq_temp_k": 255.44899500000005,
+        "gh_temp_k": 285.47458493413086,
+        "stellar_flux": 1.0059866000000008
+      },
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": null,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": 0.0,
+          "confidence": 1.0
+        }
+      ],
+      "success": true
+    }
+  ],
+  "errors": [],
+  "summary": {
+    "total": 2,
+    "successful": 2,
+    "failed": 0
+  }
+}

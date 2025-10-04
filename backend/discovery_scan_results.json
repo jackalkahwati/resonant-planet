@@ -1,0 +1,259 @@
+{
+  "scan_time": "2025-10-03T01:50:27.383810",
+  "system": "Modulus-Small (Qwen 2-1.5B)",
+  "biosignature_results": [
+    {
+      "target": "Earth-like (synthetic)",
+      "file": "earth_like_with_life.csv",
+      "biosignature_score": 0.594,
+      "detected_molecules": [
+        "O2",
+        "CH4",
+        "PH3",
+        "DMS"
+      ],
+      "disequilibrium_score": 0.85,
+      "false_positive_probability": 0.5,
+      "confidence_level": "low",
+      "explanation": "Biosignature Analysis (Score: 0.59/1.00)\n\nPlanet Temperature: 288 K\n\u2713 Temperate planet - Within potential habitable range\n\nDetected molecules: O2, CH4, PH3, DMS\n\n\u2705 Chemical disequilibrium detected - requires active replenishment\n\nFalse positive probability: 50.0%\n\n\ud83d\udd0d Moderate biosignature - needs more data\n\nModulus Analysis:\nDisequilibrium score: 0.85...",
+      "planet_params": {
+        "name": "Earth-like (synthetic)",
+        "temperature_k": 288,
+        "planet_radius_earth": 1.0,
+        "stellar_uv_flux": 1.0,
+        "age_gyr": 4.5
+      }
+    },
+    {
+      "target": "Mars-like (synthetic)",
+      "file": "mars_like_no_life.csv",
+      "biosignature_score": 0.42200000000000004,
+      "detected_molecules": [
+        "PH3",
+        "DMS"
+      ],
+      "disequilibrium_score": 0.3,
+      "false_positive_probability": 0.5,
+      "confidence_level": "low",
+      "explanation": "Biosignature Analysis (Score: 0.42/1.00)\n\nPlanet Temperature: 210 K\n\u2713 Temperate planet - Within potential habitable range\n\nDetected molecules: PH3, DMS\n\n\u26a0\ufe0f  Atmospheric composition appears in equilibrium\n\nFalse positive probability: 50.0%\n\n\u26a0\ufe0f  Weak biosignature - likely abiotic\n\nModulus Analysis:\nDisequilibrium score: 0.30...",
+      "planet_params": {
+        "name": "Mars-like (synthetic)",
+        "temperature_k": 210,
+        "planet_radius_earth": 0.53,
+        "stellar_uv_flux": 1.0,
+        "age_gyr": 4.5
+      }
+    },
+    {
+      "target": "Venus-like with PH3 (synthetic)",
+      "file": "venus_like_with_ph3.csv",
+      "biosignature_score": 0.1782,
+      "detected_molecules": [
+        "O2",
+        "CH4",
+        "PH3",
+        "DMS"
+      ],
+      "disequilibrium_score": 0.85,
+      "false_positive_probability": 0.5,
+      "confidence_level": "very_low",
+      "explanation": "Biosignature Analysis (Score: 0.18/1.00)\n\nPlanet Temperature: 737 K\n\u26a0\ufe0f  Very warm planet - Life unlikely at this temperature\n\nDetected molecules: O2, CH4, PH3, DMS\n\n\u2705 Chemical disequilibrium detected - requires active replenishment\n\nFalse positive probability: 50.0%\n\n\u26a0\ufe0f  Weak biosignature - likely abiotic\n\nModulus Analysis:\nDisequilibrium score: 0.85...",
+      "planet_params": {
+        "name": "Venus-like with PH3 (synthetic)",
+        "temperature_k": 737,
+        "planet_radius_earth": 0.95,
+        "stellar_uv_flux": 1.0,
+        "age_gyr": 4.5
+      }
+    },
+    {
+      "target": "K2-18b JWST/NIRISS",
+      "file": "jwst_real/jwst_k218b_niriss.csv",
+      "biosignature_score": 0.46399999999999997,
+      "detected_molecules": [
+        "O2"
+      ],
+      "disequilibrium_score": 0.3,
+      "false_positive_probability": 0.5,
+      "confidence_level": "low",
+      "explanation": "Biosignature Analysis (Score: 0.46/1.00)\n\nPlanet Temperature: 270 K\n\u2713 Temperate planet - Within potential habitable range\n\nDetected molecules: O2\n\n\u26a0\ufe0f  Atmospheric composition appears in equilibrium\n\nFalse positive probability: 50.0%\n\n\u26a0\ufe0f  Weak biosignature - likely abiotic\n\nModulus Analysis:\nDisequilibrium score: 0.30...",
+      "planet_params": {
+        "name": "K2-18b JWST/NIRISS",
+        "temperature_k": 270,
+        "planet_radius_earth": 2.6,
+        "stellar_uv_flux": 1.0,
+        "age_gyr": 4.5
+      }
+    },
+    {
+      "target": "TRAPPIST-1e JWST/NIRSpec",
+      "file": "jwst_real/jwst_trappist1e_nirspec.csv",
+      "biosignature_score": 0.594,
+      "detected_molecules": [
+        "O2",
+        "CH4",
+        "PH3",
+        "DMS"
+      ],
+      "disequilibrium_score": 0.85,
+      "false_positive_probability": 0.5,
+      "confidence_level": "low",
+      "explanation": "Biosignature Analysis (Score: 0.59/1.00)\n\nPlanet Temperature: 250 K\n\u2713 Temperate planet - Within potential habitable range\n\nDetected molecules: O2, CH4, PH3, DMS\n\n\u2705 Chemical disequilibrium detected - requires active replenishment\n\nFalse positive probability: 50.0%\n\n\ud83d\udd0d Moderate biosignature - needs more data\n\nModulus Analysis:\nDisequilibrium score: 0.85...",
+      "planet_params": {
+        "name": "TRAPPIST-1e JWST/NIRSpec",
+        "temperature_k": 250,
+        "planet_radius_earth": 0.92,
+        "stellar_uv_flux": 1.0,
+        "age_gyr": 4.5
+      }
+    },
+    {
+      "target": "WASP-96b JWST/NIRSpec",
+      "file": "jwst_real/jwst_wasp96b_nirspec.csv",
+      "biosignature_score": 0.029400000000000006,
+      "detected_molecules": [
+        "CH4",
+        "PH3",
+        "DMS"
+      ],
+      "disequilibrium_score": 0.7,
+      "false_positive_probability": 0.5,
+      "confidence_level": "very_low",
+      "explanation": "Biosignature Analysis (Score: 0.03/1.00)\n\nPlanet Temperature: 1350 K\n\u26a0\ufe0f  HOT JUPITER - Biosignatures highly unlikely due to extreme temperature\n\nDetected molecules: CH4, PH3, DMS\n\n\u2705 Chemical disequilibrium detected - requires active replenishment\n\nFalse positive probability: 50.0%\n\n\u26a0\ufe0f  Weak biosignature - likely abiotic\n\nModulus Analysis:\nDisequilibrium score: 0.70...",
+      "planet_params": {
+        "name": "WASP-96b JWST/NIRSpec",
+        "temperature_k": 1350,
+        "planet_radius_earth": 13.4,
+        "stellar_uv_flux": 1.0,
+        "age_gyr": 4.5
+      }
+    },
+    {
+      "target": "K2-18b (published)",
+      "file": "published_real/jwst_k218b_published.csv",
+      "biosignature_score": 0.0,
+      "detected_molecules": [],
+      "disequilibrium_score": 0.0,
+      "false_positive_probability": 1.0,
+      "confidence_level": "low",
+      "explanation": "No biosignature molecules detected in spectrum",
+      "planet_params": {
+        "name": "K2-18b (published)",
+        "temperature_k": 270,
+        "planet_radius_earth": 2.6,
+        "stellar_uv_flux": 1.0,
+        "age_gyr": 4.5
+      }
+    },
+    {
+      "target": "K2-18b biosignature candidate",
+      "file": "published_real/jwst_k218b_biosignature.csv",
+      "biosignature_score": 0.648,
+      "detected_molecules": [
+        "O2",
+        "CH4",
+        "PH3",
+        "DMS"
+      ],
+      "disequilibrium_score": 0.85,
+      "false_positive_probability": 0.5,
+      "confidence_level": "medium",
+      "explanation": "Biosignature Analysis (Score: 0.65/1.00)\n\nPlanet Temperature: 270 K\n\u2713 Temperate planet - Within potential habitable range\n\nDetected molecules: O2, CH4, PH3, DMS\n\n\u2705 Chemical disequilibrium detected - requires active replenishment\n\nFalse positive probability: 50.0%\n\n\ud83d\udd0d Moderate biosignature - needs more data\n\nModulus Analysis:\nDisequilibrium score: 0.85...",
+      "planet_params": {
+        "name": "K2-18b biosignature candidate",
+        "temperature_k": 270,
+        "planet_radius_earth": 2.6,
+        "stellar_uv_flux": 1.0,
+        "age_gyr": 4.5
+      }
+    },
+    {
+      "target": "TRAPPIST-1e (projected)",
+      "file": "published_real/jwst_trappist1e_future.csv",
+      "biosignature_score": 0.648,
+      "detected_molecules": [
+        "O2",
+        "CH4",
+        "PH3",
+        "DMS"
+      ],
+      "disequilibrium_score": 0.85,
+      "false_positive_probability": 0.5,
+      "confidence_level": "medium",
+      "explanation": "Biosignature Analysis (Score: 0.65/1.00)\n\nPlanet Temperature: 250 K\n\u2713 Temperate planet - Within potential habitable range\n\nDetected molecules: O2, CH4, PH3, DMS\n\n\u2705 Chemical disequilibrium detected - requires active replenishment\n\nFalse positive probability: 50.0%\n\n\ud83d\udd0d Moderate biosignature - needs more data\n\nModulus Analysis:\nDisequilibrium score: 0.85...",
+      "planet_params": {
+        "name": "TRAPPIST-1e (projected)",
+        "temperature_k": 250,
+        "planet_radius_earth": 0.92,
+        "stellar_uv_flux": 1.0,
+        "age_gyr": 4.5
+      }
+    },
+    {
+      "target": "WASP-39b (published)",
+      "file": "published_real/jwst_wasp39b_published.csv",
+      "biosignature_score": 0.026866666666666667,
+      "detected_molecules": [
+        "CH4",
+        "PH3",
+        "DMS"
+      ],
+      "disequilibrium_score": 0.7,
+      "false_positive_probability": 0.5,
+      "confidence_level": "very_low",
+      "explanation": "Biosignature Analysis (Score: 0.03/1.00)\n\nPlanet Temperature: 1100 K\n\u26a0\ufe0f  HOT JUPITER - Biosignatures highly unlikely due to extreme temperature\n\nDetected molecules: CH4, PH3, DMS\n\n\u2705 Chemical disequilibrium detected - requires active replenishment\n\nFalse positive probability: 50.0%\n\n\u26a0\ufe0f  Weak biosignature - likely abiotic\n\nModulus Analysis:\nDisequilibrium score: 0.70...",
+      "planet_params": {
+        "name": "WASP-39b (published)",
+        "temperature_k": 1100,
+        "planet_radius_earth": 14.1,
+        "stellar_uv_flux": 1.0,
+        "age_gyr": 4.5
+      }
+    },
+    {
+      "target": "WASP-39b abiotic",
+      "file": "published_real/jwst_wasp39b_abiotic.csv",
+      "biosignature_score": 0.0316,
+      "detected_molecules": [
+        "O2",
+        "CH4",
+        "PH3",
+        "DMS"
+      ],
+      "disequilibrium_score": 0.85,
+      "false_positive_probability": 0.5,
+      "confidence_level": "very_low",
+      "explanation": "Biosignature Analysis (Score: 0.03/1.00)\n\nPlanet Temperature: 1100 K\n\u26a0\ufe0f  HOT JUPITER - Biosignatures highly unlikely due to extreme temperature\n\nDetected molecules: O2, CH4, PH3, DMS\n\n\u2705 Chemical disequilibrium detected - requires active replenishment\n\nFalse positive probability: 50.0%\n\n\u26a0\ufe0f  Weak biosignature - likely abiotic\n\nModulus Analysis:\nDisequilibrium score: 0.85...",
+      "planet_params": {
+        "name": "WASP-39b abiotic",
+        "temperature_k": 1100,
+        "planet_radius_earth": 14.1,
+        "stellar_uv_flux": 1.0,
+        "age_gyr": 4.5
+      }
+    },
+    {
+      "target": "LHS 475b (published)",
+      "file": "published_real/jwst_lhs475b_published.csv",
+      "biosignature_score": 0.0,
+      "detected_molecules": [],
+      "disequilibrium_score": 0.0,
+      "false_positive_probability": 1.0,
+      "confidence_level": "low",
+      "explanation": "No biosignature molecules detected in spectrum",
+      "planet_params": {
+        "name": "LHS 475b (published)",
+        "temperature_k": 580,
+        "planet_radius_earth": 0.99,
+        "stellar_uv_flux": 1.0,
+        "age_gyr": 4.5
+      }
+    }
+  ],
+  "summary": {
+    "total_scanned": 12,
+    "high_confidence": 0,
+    "moderate_confidence": 4,
+    "low_confidence": 8
+  }
+}

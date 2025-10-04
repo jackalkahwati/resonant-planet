@@ -1,0 +1,18 @@
+{
+  "planets": [
+    "Kepler-452b",
+    "Kepler-186f"
+  ],
+  "files": [
+    "assets/spectra_kepler/kepler/Kepler-452b.csv",
+    "assets/spectra_kepler/kepler/Kepler-186f.csv"
+  ],
+  "biosignatures": {
+    "Kepler-452b": "none",
+    "Kepler-186f": "candidate",
+    "Kepler-62f": "speculative",
+    "TRAPPIST-1e": "candidate",
+    "GJ 1214 b": "candidate",
+    "K2-18b": "claimed"
+  }
+}

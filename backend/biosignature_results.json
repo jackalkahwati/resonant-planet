@@ -1,0 +1,19 @@
+{
+  "planet": "kepler90_extended_3quarters",
+  "results": [
+    {
+      "metric": "log10_CO2_CH4",
+      "value": 1.95972977325117,
+      "confidence": 1.0,
+      "trace_id": "1759458725749667",
+      "explanation": "This is a direct numerical evaluation of the given logarithmic expression using provided constant values for CO2 and CH4 mixing ratios."
+    },
+    {
+      "metric": "greenhouse_temperature_offset",
+      "value": 30.0650722089058,
+      "confidence": 1.0,
+      "trace_id": "1759458748382222",
+      "explanation": "The problem requires computing the greenhouse disequilibrium as the difference between the observed greenhouse temperature and the equilibrium temperature via simple subtraction. The solar flux value is provided but unused in the calculation."
+    }
+  ]
+}

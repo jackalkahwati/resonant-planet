@@ -1,0 +1,154 @@
+{
+  "results": [
+    {
+      "planet": "jwst_lhs475b_published",
+      "file": "jwst_lhs475b_published.csv",
+      "snapshot_data": {
+        "co2_ppm": 280.0,
+        "ch4_ppm": 1.0,
+        "eq_temp_k": 255.0,
+        "gh_temp_k": 285.0,
+        "stellar_flux": 1.0
+      },
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": null,
+          "confidence": 0.0
+        }
+      ],
+      "success": true
+    },
+    {
+      "planet": "jwst_k218b_published",
+      "file": "jwst_k218b_published.csv",
+      "snapshot_data": {
+        "co2_ppm": 280.0,
+        "ch4_ppm": 1.0,
+        "eq_temp_k": 255.0,
+        "gh_temp_k": 285.0,
+        "stellar_flux": 1.0
+      },
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": null,
+          "confidence": 0.0
+        }
+      ],
+      "success": true
+    },
+    {
+      "planet": "jwst_wasp39b_abiotic",
+      "file": "jwst_wasp39b_abiotic.csv",
+      "snapshot_data": {
+        "co2_ppm": 280.0,
+        "ch4_ppm": 1.0,
+        "eq_temp_k": 255.0,
+        "gh_temp_k": 285.0,
+        "stellar_flux": 1.0
+      },
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": null,
+          "confidence": 0.0
+        }
+      ],
+      "success": true
+    },
+    {
+      "planet": "jwst_wasp39b_published",
+      "file": "jwst_wasp39b_published.csv",
+      "snapshot_data": {
+        "co2_ppm": 280.0,
+        "ch4_ppm": 1.0,
+        "eq_temp_k": 255.0,
+        "gh_temp_k": 285.0,
+        "stellar_flux": 1.0
+      },
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": null,
+          "confidence": 0.0
+        }
+      ],
+      "success": true
+    },
+    {
+      "planet": "jwst_trappist1e_future",
+      "file": "jwst_trappist1e_future.csv",
+      "snapshot_data": {
+        "co2_ppm": 280.0,
+        "ch4_ppm": 1.0,
+        "eq_temp_k": 255.0,
+        "gh_temp_k": 285.0,
+        "stellar_flux": 1.0
+      },
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": null,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": null,
+          "confidence": 0.0
+        }
+      ],
+      "success": true
+    },
+    {
+      "planet": "jwst_k218b_biosignature",
+      "file": "jwst_k218b_biosignature.csv",
+      "snapshot_data": {
+        "co2_ppm": 280.0,
+        "ch4_ppm": 1.0,
+        "eq_temp_k": 255.0,
+        "gh_temp_k": 285.0,
+        "stellar_flux": 1.0
+      },
+      "modulus": [
+        {
+          "metric": "log10_CO2_CH4",
+          "value": 2.44715803134222,
+          "confidence": 1.0
+        },
+        {
+          "metric": "greenhouse_temperature_offset",
+          "value": null,
+          "confidence": 0.0
+        }
+      ],
+      "success": true
+    }
+  ],
+  "errors": [],
+  "summary": {
+    "total": 6,
+    "successful": 6,
+    "failed": 0
+  }
+}
