@@ -381,7 +381,7 @@ const Explainability = () => {
                 <Info className="h-4 w-4" />
                 <AlertDescription>
                   {selectedCandidate.validations.secondary ? (
-                    <>No secondary eclipse at phase 0.5 (< 1σ). Consistent with planet, rules out eclipsing binary.</>
+                    <>No secondary eclipse at phase 0.5 (&lt; 1σ). Consistent with planet, rules out eclipsing binary.</>
                   ) : (
                     <>Strong secondary eclipse detected (8.2σ). Indicates stellar companion, not planet.</>
                   )}
@@ -462,13 +462,13 @@ const Explainability = () => {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Significance</p>
-                  <p className="text-lg font-semibold">< 2σ</p>
+                  <p className="text-lg font-semibold">&lt; 2σ</p>
                 </div>
               </div>
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  Centroid stable during transit (< 2σ motion). Signal originates from target star, not contaminating background source.
+                  Centroid stable during transit (&lt; 2σ motion). Signal originates from target star, not contaminating background source.
                 </AlertDescription>
               </Alert>
             </CardContent>
