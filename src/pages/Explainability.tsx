@@ -156,8 +156,12 @@ const Explainability = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">Interactive Plotly chart will render here</p>
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                <img 
+                  src={`http://localhost:8000${candidate.plots.phase_fold_png}`} 
+                  alt="Phase-folded light curve"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
@@ -182,8 +186,18 @@ const Explainability = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">BLS periodogram visualization</p>
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                {candidate.plots.bls_png ? (
+                  <img 
+                    src={`http://localhost:8000${candidate.plots.bls_png}`} 
+                    alt="BLS periodogram"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-muted-foreground">BLS data not available</p>
+                  </div>
+                )}
               </div>
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
@@ -209,7 +223,7 @@ const Explainability = () => {
             </CardHeader>
             <CardContent>
               <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">Saliency heatmap visualization</p>
+                <p className="text-muted-foreground">Saliency analysis coming soon</p>
               </div>
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
@@ -234,8 +248,12 @@ const Explainability = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="aspect-video bg-muted rounded-lg flex items-center justify-center mb-4">
-                <p className="text-muted-foreground">Odd/Even transit overlay plot</p>
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden mb-4">
+                <img 
+                  src={`http://localhost:8000${candidate.plots.oddeven_png}`} 
+                  alt="Odd vs even transits"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="grid md:grid-cols-2 gap-4 mb-4">
                 <div className="text-center p-4 bg-muted rounded-lg">
@@ -268,8 +286,12 @@ const Explainability = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">Secondary eclipse window visualization</p>
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                <img 
+                  src={`http://localhost:8000${candidate.plots.secondary_png}`} 
+                  alt="Secondary eclipse search"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
@@ -292,7 +314,7 @@ const Explainability = () => {
             </CardHeader>
             <CardContent>
               <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">Shape comparison plot</p>
+                <p className="text-muted-foreground">Shape analysis coming soon</p>
               </div>
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
@@ -315,7 +337,7 @@ const Explainability = () => {
             </CardHeader>
             <CardContent>
               <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">Centroid shift analysis</p>
+                <p className="text-muted-foreground">Centroid analysis coming soon</p>
               </div>
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
