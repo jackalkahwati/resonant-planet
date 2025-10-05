@@ -29,4 +29,5 @@ RUN mkdir -p uploads run_artifacts assets/demos assets/weights assets/models
 EXPOSE 8000
 
 # Run application
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Use sh to properly expand environment variables
+CMD sh -c "uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}"
