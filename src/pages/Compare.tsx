@@ -3,17 +3,57 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowUpDown, Download, Filter, CheckCircle, AlertCircle } from "lucide-react";
-
-const mockCandidates = [
-  { id: "KIC-001", probability: 0.94, period: 3.52, depth: 0.012, snr: 12.4, validations: { oddEven: true, secondary: true, shape: true } },
-  { id: "KIC-002", probability: 0.89, period: 7.23, depth: 0.008, snr: 10.1, validations: { oddEven: true, secondary: false, shape: true } },
-  { id: "KIC-003", probability: 0.76, period: 15.6, depth: 0.005, snr: 8.3, validations: { oddEven: true, secondary: true, shape: false } },
-  { id: "KIC-004", probability: 0.68, period: 2.14, depth: 0.015, snr: 9.7, validations: { oddEven: false, secondary: true, shape: true } },
-  { id: "KIC-005", probability: 0.54, period: 42.1, depth: 0.003, snr: 6.2, validations: { oddEven: true, secondary: false, shape: false } },
-];
+import { ArrowUpDown, Download, CheckCircle, XCircle, TrendingUp, TrendingDown } from "lucide-react";
+import { sampleCandidates } from "@/data/sampleCandidates";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Compare = () => {
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortField, setSortField] = useState<"probability" | "period" | "snr">("probability");
+  const [sortDesc, setSortDesc] = useState(true);
+
+  const filteredCandidates = sampleCandidates
+    .filter(c => 
+      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.id.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      const aVal = a[sortField];
+      const bVal = b[sortField];
+      return sortDesc ? bVal - aVal : aVal - bVal;
+    });
+
+  const handleSort = (field: typeof sortField) => {
+    if (sortField === field) {
+      setSortDesc(!sortDesc);
+    } else {
+      setSortField(field);
+      setSortDesc(true);
+    }
+  };
+
+  const handleExportAll = () => {
+    const csv = `ID,Name,Mission,Probability,Period (days),Depth (%),Duration (hrs),SNR,Status\n${filteredCandidates.map(c => 
+      `${c.id},${c.name},${c.mission},${c.probability},${c.period},${(c.depth * 100).toFixed(2)},${c.duration},${c.snr},${c.isConfirmed ? 'Confirmed' : c.isFalsePositive ? 'False Positive' : 'Candidate'}`
+    ).join('\n')}`;
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `candidates_comparison_${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const highConfidence = filteredCandidates.filter(c => c.probability > 0.8).length;
+  const moderate = filteredCandidates.filter(c => c.probability >= 0.6 && c.probability <= 0.8).length;
+  const lowConfidence = filteredCandidates.filter(c => c.probability < 0.6).length;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -28,111 +68,119 @@ const Compare = () => {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Candidate List</CardTitle>
-              <CardDescription>5 candidates from current analysis batch</CardDescription>
+              <CardDescription>{filteredCandidates.length} candidates from sample dataset</CardDescription>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4" />
-                Filter
-              </Button>
-              <Button variant="secondary" size="sm">
-                <Download className="h-4 w-4" />
-                Export All
-              </Button>
-            </div>
+            <Button variant="outline" size="sm" onClick={handleExportAll}>
+              <Download className="h-4 w-4 mr-2" />
+              Export CSV
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
-            <Input placeholder="Search by ID or filter by metrics..." />
+            <Input 
+              placeholder="Search by name or ID..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
 
           <div className="rounded-lg border overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Mission</TableHead>
                   <TableHead>
-                    <Button variant="ghost" size="sm" className="h-8 p-0">
-                      ID <ArrowUpDown className="ml-2 h-3 w-3" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button variant="ghost" size="sm" className="h-8 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort("probability")}>
                       Probability <ArrowUpDown className="ml-2 h-3 w-3" />
                     </Button>
                   </TableHead>
                   <TableHead>
-                    <Button variant="ghost" size="sm" className="h-8 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort("period")}>
                       Period <ArrowUpDown className="ml-2 h-3 w-3" />
                     </Button>
                   </TableHead>
                   <TableHead>
-                    <Button variant="ghost" size="sm" className="h-8 p-0">
-                      Depth <ArrowUpDown className="ml-2 h-3 w-3" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button variant="ghost" size="sm" className="h-8 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 p-0" onClick={() => handleSort("snr")}>
                       SNR <ArrowUpDown className="ml-2 h-3 w-3" />
                     </Button>
                   </TableHead>
                   <TableHead>Validations</TableHead>
-                  <TableHead>Trend</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockCandidates.map((candidate) => {
+                {filteredCandidates.map((candidate) => {
                   const passedValidations = Object.values(candidate.validations).filter(Boolean).length;
                   const totalValidations = Object.keys(candidate.validations).length;
 
                   return (
                     <TableRow key={candidate.id}>
-                      <TableCell className="font-mono text-sm">{candidate.id}</TableCell>
+                      <TableCell className="font-medium">{candidate.name}</TableCell>
                       <TableCell>
-                        <Badge variant={candidate.probability > 0.8 ? "default" : "secondary"}>
-                          {candidate.probability.toFixed(2)}
-                        </Badge>
+                        <Badge variant="outline">{candidate.mission}</Badge>
                       </TableCell>
-                      <TableCell>{candidate.period.toFixed(2)}d</TableCell>
-                      <TableCell>{candidate.depth.toFixed(3)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={candidate.probability > 0.8 ? "default" : "secondary"}>
+                            {(candidate.probability * 100).toFixed(0)}%
+                          </Badge>
+                          {candidate.probability > candidate.baselineProbability ? (
+                            <TrendingUp className="h-3 w-3 text-green-500" />
+                          ) : (
+                            <TrendingDown className="h-3 w-3 text-red-500" />
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{candidate.period.toFixed(2)} days</TableCell>
                       <TableCell>{candidate.snr.toFixed(1)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <span className="text-sm">{passedValidations}/{totalValidations}</span>
+                          <span className="text-sm font-semibold">{passedValidations}/{totalValidations}</span>
                           <div className="flex gap-1 ml-2">
                             {candidate.validations.oddEven ? (
-                              <CheckCircle className="h-3 w-3 text-primary" />
+                              <CheckCircle className="h-3 w-3 text-green-500" />
                             ) : (
-                              <AlertCircle className="h-3 w-3 text-muted-foreground" />
+                              <XCircle className="h-3 w-3 text-red-500" />
                             )}
                             {candidate.validations.secondary ? (
-                              <CheckCircle className="h-3 w-3 text-primary" />
+                              <CheckCircle className="h-3 w-3 text-green-500" />
                             ) : (
-                              <AlertCircle className="h-3 w-3 text-muted-foreground" />
+                              <XCircle className="h-3 w-3 text-red-500" />
                             )}
                             {candidate.validations.shape ? (
-                              <CheckCircle className="h-3 w-3 text-primary" />
+                              <CheckCircle className="h-3 w-3 text-green-500" />
                             ) : (
-                              <AlertCircle className="h-3 w-3 text-muted-foreground" />
+                              <XCircle className="h-3 w-3 text-red-500" />
+                            )}
+                            {candidate.validations.centroid ? (
+                              <CheckCircle className="h-3 w-3 text-green-500" />
+                            ) : (
+                              <XCircle className="h-3 w-3 text-red-500" />
                             )}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="w-16 h-8 bg-muted rounded flex items-end gap-[2px] p-1">
-                          {[3, 5, 4, 6, 7, 5, 8].map((height, i) => (
-                            <div
-                              key={i}
-                              className="flex-1 bg-primary/50"
-                              style={{ height: `${height * 10}%` }}
-                            />
-                          ))}
-                        </div>
+                        {candidate.isConfirmed && (
+                          <Badge variant="default">Confirmed</Badge>
+                        )}
+                        {candidate.isFalsePositive && (
+                          <Badge variant="destructive">False Positive</Badge>
+                        )}
+                        {!candidate.isConfirmed && !candidate.isFalsePositive && (
+                          <Badge variant="secondary">Candidate</Badge>
+                        )}
                       </TableCell>
                       <TableCell>
-                        <Button variant="secondary" size="sm">
-                          View
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => navigate('/explainability')}
+                        >
+                          Details
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -151,7 +199,7 @@ const Compare = () => {
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              <p className="text-4xl font-bold text-primary">2</p>
+              <p className="text-4xl font-bold text-primary">{highConfidence}</p>
               <p className="text-sm text-muted-foreground">Probability &gt; 0.8</p>
             </div>
           </CardContent>
@@ -163,7 +211,7 @@ const Compare = () => {
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              <p className="text-4xl font-bold">2</p>
+              <p className="text-4xl font-bold">{moderate}</p>
               <p className="text-sm text-muted-foreground">0.6 &lt; Probability &lt; 0.8</p>
             </div>
           </CardContent>
@@ -175,7 +223,7 @@ const Compare = () => {
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              <p className="text-4xl font-bold text-accent">1</p>
+              <p className="text-4xl font-bold text-orange-500">{lowConfidence}</p>
               <p className="text-sm text-muted-foreground">Probability &lt; 0.6</p>
             </div>
           </CardContent>
