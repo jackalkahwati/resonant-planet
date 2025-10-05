@@ -25,7 +25,7 @@ export const sampleCandidates: Candidate[] = [
     id: "KIC-10593626",
     name: "Kepler-90i",
     mission: "Kepler",
-    probability: 0.96,
+    probability: 0.965,
     period: 14.45,
     depth: 0.009,
     duration: 3.4,
