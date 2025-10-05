@@ -21,7 +21,7 @@ async def get_status(job_id: str):
     return JobStatus(
         job_id=job["job_id"],
         status=job["status"],
-        progress=job["progress"],
-        stage=job["stage"],
-        message=job["message"],
+        progress_pct=job["progress"],
+        current_step=job["stage"],
+        error=job["message"] if job["status"] == "failed" else None,
     )
