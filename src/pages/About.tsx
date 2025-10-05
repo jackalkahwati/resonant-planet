@@ -416,6 +416,59 @@ const About = () => {
           </CardContent>
         </Card>
 
+        {/* Team */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Team</CardTitle>
+            <CardDescription>NASA Space Apps Challenge 2025</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
+                  JA
+                </div>
+                <div>
+                  <p className="font-semibold">Jack Al-Kahwati</p>
+                  <p className="text-sm text-muted-foreground">Team Lead</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
+                  GS
+                </div>
+                <div>
+                  <p className="font-semibold">Gabriel Sánchez</p>
+                  <p className="text-sm text-muted-foreground">Developer</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
+                  SS
+                </div>
+                <div>
+                  <p className="font-semibold">Sahil San</p>
+                  <p className="text-sm text-muted-foreground">Developer</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
+                  AS
+                </div>
+                <div>
+                  <p className="font-semibold">Adhvaidh Sunny</p>
+                  <p className="text-sm text-muted-foreground">Developer</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
+              <p className="text-sm text-center text-muted-foreground">
+                Built for <strong className="text-primary">NASA Space Apps Challenge 2025</strong>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* License */}
         <Card>
           <CardHeader>
