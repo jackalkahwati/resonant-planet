@@ -299,7 +299,7 @@ const Detect = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle>Baseline vs. Resonant Comparison</CardTitle>
-                      <CardDescription>{selectedCandidate.name}</CardDescription>
+                      <CardDescription><p className="text-lg font-semibold">{selectedCandidate.name}</p></CardDescription>
                     </div>
                     <Button variant="outline" onClick={() => setShowComparison(false)}>
                       Back to Results
