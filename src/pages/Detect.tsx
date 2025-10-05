@@ -20,21 +20,29 @@ const Detect = () => {
   const handleRunDemo = (candidateIndex?: number) => {
     setIsProcessing(true);
     setShowComparison(false);
-    toast.info("Starting analysis on pre-loaded sample data...");
+    
+    // If specific candidate requested, show only that one
+    if (candidateIndex !== undefined) {
+      toast.info(`Starting analysis on ${sampleCandidates[candidateIndex].name}...`);
+    } else {
+      toast.info("Starting analysis on pre-loaded sample data...");
+    }
     
     // Simulate processing
     setTimeout(() => {
       setIsProcessing(false);
       
-      // Load all sample candidates
-      setResults(sampleCandidates);
-      
-      // If specific candidate requested, highlight it
+      // If specific candidate requested, show only that one
       if (candidateIndex !== undefined) {
+        const specificCandidate = [sampleCandidates[candidateIndex]];
+        setResults(specificCandidate);
         setSelectedCandidate(sampleCandidates[candidateIndex]);
+        toast.success(`Analysis complete! Found 1 candidate (${specificCandidate[0].isFalsePositive ? 'false positive' : 'genuine'}).`);
+      } else {
+        // Load all sample candidates when "Run All Samples" is clicked
+        setResults(sampleCandidates);
+        toast.success(`Analysis complete! Found ${sampleCandidates.length} candidates (${sampleCandidates.filter(c => !c.isFalsePositive).length} genuine, ${sampleCandidates.filter(c => c.isFalsePositive).length} false positive).`);
       }
-      
-      toast.success(`Analysis complete! Found ${sampleCandidates.length} candidates (${sampleCandidates.filter(c => !c.isFalsePositive).length} genuine, ${sampleCandidates.filter(c => c.isFalsePositive).length} false positive).`);
     }, 2000);
   };
 
