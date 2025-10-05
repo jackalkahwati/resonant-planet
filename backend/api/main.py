@@ -9,6 +9,7 @@ import logging
 
 from core.settings import settings
 from physics import get_backend_info
+from core.cache import get_cache_stats, clear_all_caches
 
 logging.basicConfig(
     level=getattr(logging, settings.log_level),
@@ -73,6 +74,34 @@ async def root():
 async def health():
     """Health check endpoint."""
     return {"status": "healthy"}
+
+
+@app.get("/api/cache/stats")
+async def cache_stats():
+    """
+    Get cache statistics.
+    
+    Returns hit rates, sizes, and usage for preprocessing and BLS caches.
+    """
+    stats = get_cache_stats()
+    return {
+        "status": "ok",
+        "caches": stats,
+        "description": {
+            "preprocess": "Light curve preprocessing (normalization, detrending, outlier removal)",
+            "bls": "Box Least Squares period search results"
+        }
+    }
+
+
+@app.post("/api/cache/clear")
+async def clear_cache():
+    """Clear all caches and reset statistics."""
+    clear_all_caches()
+    return {
+        "status": "ok",
+        "message": "All caches cleared"
+    }
 
 
 if __name__ == "__main__":

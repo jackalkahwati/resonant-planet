@@ -20,7 +20,7 @@ from core.data_sources import (
 )
 from core.settings import settings
 
-router = APIRouter(prefix="/nasa", tags=["NASA Data"])
+router = APIRouter(prefix="/api/nasa", tags=["NASA Data"])
 logger = logging.getLogger(__name__)
 
 

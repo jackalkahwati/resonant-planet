@@ -10,12 +10,16 @@ import { Search, Upload, Play, Loader2, CheckCircle, AlertCircle, Telescope, Zap
 import { toast } from "sonner";
 import { BaselineComparison } from "@/components/BaselineComparison";
 import { sampleCandidates, Candidate } from "@/data/sampleCandidates";
+import api from "@/lib/api";
 
 const Detect = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [results, setResults] = useState<Candidate[]>([]);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [showComparison, setShowComparison] = useState(false);
+  const [selectedMission, setSelectedMission] = useState<string>("kepler");
+  const [targetId, setTargetId] = useState<string>("");
+  const [preprocessPreset, setPreprocessPreset] = useState<string>("standard");
 
   const handleRunDemo = (candidateIndex?: number) => {
     setIsProcessing(true);
@@ -44,6 +48,99 @@ const Detect = () => {
         toast.success(`Analysis complete! Found ${sampleCandidates.length} candidates (${sampleCandidates.filter(c => !c.isFalsePositive).length} genuine, ${sampleCandidates.filter(c => c.isFalsePositive).length} false positive).`);
       }
     }, 2000);
+  };
+
+  const handleRunRealDetection = async () => {
+    if (!targetId.trim()) {
+      toast.error("Please enter a Target ID");
+      return;
+    }
+
+    setIsProcessing(true);
+    setShowComparison(false);
+    setResults([]); // Clear previous results
+    toast.info(`Fetching ${selectedMission.toUpperCase()} data for ${targetId} from NASA...`);
+
+    try {
+      // Step 1: Fetch NASA data
+      const fetchResponse = await api.fetchNASAData({
+        target_id: targetId,
+        mission: selectedMission
+      });
+
+      toast.success(`Downloaded ${fetchResponse.num_points} data points!`);
+      toast.info("Starting exoplanet detection analysis...");
+
+      // Step 2: Run detection on the fetched data
+      const runResponse = await api.startRun({
+        dataset_id: fetchResponse.dataset_id,
+        min_period_days: preprocessPreset === "sensitive" ? 0.5 : 1.0,
+        max_period_days: preprocessPreset === "fast" ? 20 : 50,
+        min_snr: preprocessPreset === "sensitive" ? 5.0 : 7.0,
+        max_candidates: 10
+      });
+
+      const jobId = runResponse.job_id;
+
+      // Step 3: Poll for completion
+      const finalStatus = await api.pollStatus(jobId, (status) => {
+        if (status.message) {
+          toast.info(status.message);
+        }
+      });
+
+      if (finalStatus.status === "completed") {
+        // Step 4: Get results
+        const resultsData = await api.getResults(jobId);
+        
+        // Convert backend results to frontend format
+        const formattedResults: Candidate[] = resultsData.candidates.map((c) => ({
+          id: c.candidate_id,
+          name: `${targetId} Candidate`,
+          mission: selectedMission.toUpperCase(),
+          probability: c.probability,
+          period: c.period_days,
+          depth: c.depth_ppm / 1e6,
+          duration: c.duration_hours,
+          snr: c.snr,
+          validations: {
+            oddEven: c.flags.odd_even_ok,
+            secondary: c.flags.secondary_low,
+            shape: c.flags.shape_u_like,
+            centroid: c.flags.density_consistent
+          },
+          baselineProbability: 0.7,
+          baselineFlags: [],
+          description: `Detected from ${selectedMission.toUpperCase()} ${targetId}`,
+          isConfirmed: c.rl_action === "accept",
+          isFalsePositive: c.rl_action === "reject",
+          plots: c.plots
+        }));
+
+        setResults(formattedResults);
+        setIsProcessing(false);
+        
+        if (formattedResults.length > 0) {
+          toast.success(`✅ Analysis complete! Found ${formattedResults.length} candidate${formattedResults.length !== 1 ? 's' : ''}.`);
+        } else {
+          toast.info("Analysis complete. No transits detected with current sensitivity settings. Try 'High Sensitivity' preset.");
+        }
+      } else {
+        throw new Error(finalStatus.message || "Detection failed");
+      }
+    } catch (error: any) {
+      console.error("Detection error:", error);
+      setIsProcessing(false);
+      
+      // Better error messages
+      if (error.status === 503) {
+        toast.error("Backend dependencies missing. Please contact support.");
+      } else if (error.details?.detail) {
+        toast.error(`Error: ${error.details.detail}`);
+      } else {
+        toast.error(error.message || "Failed to run detection. Please check target ID and try again.");
+      }
+    }
   };
 
   const handleViewComparison = (candidate: Candidate) => {
@@ -95,7 +192,7 @@ const Detect = () => {
                 <TabsContent value="dataset" className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="mission">Mission</Label>
-                    <Select>
+                    <Select value={selectedMission} onValueChange={setSelectedMission}>
                       <SelectTrigger id="mission">
                         <SelectValue placeholder="Select mission" />
                       </SelectTrigger>
@@ -110,8 +207,13 @@ const Detect = () => {
                   <div className="space-y-2">
                     <Label htmlFor="target">Target ID</Label>
                     <div className="flex gap-2">
-                      <Input id="target" placeholder="e.g., KIC 8462852" />
-                      <Button size="icon" variant="secondary">
+                      <Input 
+                        id="target" 
+                        placeholder="e.g., KIC 8462852" 
+                        value={targetId}
+                        onChange={(e) => setTargetId(e.target.value)}
+                      />
+                      <Button size="icon" variant="secondary" disabled>
                         <Search className="h-4 w-4" />
                       </Button>
                     </div>
@@ -143,7 +245,7 @@ const Detect = () => {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="preset">Preprocessing Preset</Label>
-                <Select defaultValue="standard">
+                <Select value={preprocessPreset} onValueChange={setPreprocessPreset}>
                   <SelectTrigger id="preset">
                     <SelectValue />
                   </SelectTrigger>
@@ -158,7 +260,7 @@ const Detect = () => {
               <Button 
                 className="w-full" 
                 size="lg" 
-                onClick={() => handleRunDemo()}
+                onClick={handleRunRealDetection}
                 disabled={isProcessing}
                 variant="hero"
               >
@@ -179,6 +281,7 @@ const Detect = () => {
                 variant="outline" 
                 className="w-full"
                 onClick={() => handleRunDemo()}
+                disabled={isProcessing}
               >
                 <Zap className="h-5 w-5" />
                 Try All Samples
