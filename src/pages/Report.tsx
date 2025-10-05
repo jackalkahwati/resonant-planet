@@ -447,7 +447,7 @@ KIC-8462852,"KIC 8462852",Kepler,0.94,3.52,0.012,2.8,12.4,true,true,true,true,0.
             <CardContent>
               <p className="text-xs text-muted-foreground font-mono leading-relaxed">
                 Resonant Exoplanets Detection Pipeline v1.0, NASA Space Apps Challenge 2025.
-                Available at: github.com/resonant-exoplanets
+                Available at: https://github.com/jackalkahwati/resonant-planet
               </p>
             </CardContent>
           </Card>
