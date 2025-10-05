@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Upload, Play, Loader2, CheckCircle, AlertCircle, Telescope, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { BaselineComparison } from "@/components/BaselineComparison";
-import { sampleCandidates, Candidate } from "@/data/sampleCandidates";
+import { Candidate } from "@/data/sampleCandidates";
 import api from "@/lib/api";
 
 const Detect = () => {
@@ -21,33 +21,97 @@ const Detect = () => {
   const [targetId, setTargetId] = useState<string>("");
   const [preprocessPreset, setPreprocessPreset] = useState<string>("standard");
 
-  const handleRunDemo = (candidateIndex?: number) => {
+  const handleRunDemo = async (demoTarget?: { id: string; name: string; mission: string }) => {
+    if (!demoTarget) {
+      toast.error("Invalid demo target");
+      return;
+    }
+
     setIsProcessing(true);
     setShowComparison(false);
+    setResults([]);
     
-    // If specific candidate requested, show only that one
-    if (candidateIndex !== undefined) {
-      toast.info(`Starting analysis on ${sampleCandidates[candidateIndex].name}...`);
-    } else {
-      toast.info("Starting analysis on pre-loaded sample data...");
-    }
-    
-    // Simulate processing
-    setTimeout(() => {
+    toast.info(`Fetching ${demoTarget.mission.toUpperCase()} data for ${demoTarget.name}...`);
+
+    try {
+      // Step 1: Fetch NASA data
+      const fetchResponse = await api.fetchNASAData({
+        target_id: demoTarget.id,
+        mission: demoTarget.mission.toLowerCase()
+      });
+
+      toast.success(`Downloaded ${fetchResponse.num_points} data points!`);
+      toast.info("Starting exoplanet detection analysis...");
+
+      // Step 2: Run detection
+      const runResponse = await api.startRun({
+        dataset_id: fetchResponse.dataset_id,
+        min_period_days: 0.5,
+        max_period_days: 400, // Wide range to catch long-period planets
+        min_snr: 5.0,
+        max_candidates: 10
+      });
+
+      const jobId = runResponse.job_id;
+
+      // Step 3: Poll for completion
+      const finalStatus = await api.pollStatus(jobId, (status) => {
+        if (status.message) {
+          toast.info(status.message);
+        }
+      });
+
+      if (finalStatus.status === "completed") {
+        // Step 4: Get results
+        const resultsData = await api.getResults(jobId);
+        
+        // Convert backend results to frontend format
+        const formattedResults: Candidate[] = resultsData.candidates.map((c) => ({
+          id: c.candidate_id,
+          name: `${demoTarget.name} - ${c.period_days.toFixed(2)}d`,
+          mission: demoTarget.mission.toUpperCase(),
+          probability: c.probability,
+          period: c.period_days,
+          depth: c.depth_ppm / 1e6,
+          duration: c.duration_hours,
+          snr: c.snr,
+          validations: {
+            oddEven: c.flags.odd_even_ok,
+            secondary: c.flags.secondary_low,
+            shape: c.flags.shape_u_like,
+            centroid: c.flags.density_consistent
+          },
+          baselineProbability: 0.7,
+          baselineFlags: [],
+          description: `Real detection from ${demoTarget.mission.toUpperCase()} ${demoTarget.id}`,
+          isConfirmed: c.rl_action === "accept",
+          isFalsePositive: c.rl_action === "reject",
+          plots: c.plots
+        }));
+
+        setResults(formattedResults);
+        setIsProcessing(false);
+        
+        if (formattedResults.length > 0) {
+          toast.success(`✅ Found ${formattedResults.length} candidate${formattedResults.length !== 1 ? 's' : ''} in ${demoTarget.name}!`);
+        } else {
+          toast.info("No transits detected. This target may not have clear planetary signals in this data segment.");
+        }
+      } else {
+        throw new Error(finalStatus.message || "Detection failed");
+      }
+    } catch (error: any) {
+      console.error("Demo detection error:", error);
       setIsProcessing(false);
       
-      // If specific candidate requested, show only that one
-      if (candidateIndex !== undefined) {
-        const specificCandidate = [sampleCandidates[candidateIndex]];
-        setResults(specificCandidate);
-        setSelectedCandidate(sampleCandidates[candidateIndex]);
-        toast.success(`Analysis complete! Found 1 candidate (${specificCandidate[0].isFalsePositive ? 'false positive' : 'genuine'}).`);
+      if (error.status === 503) {
+        toast.error("Backend dependencies missing. Please contact support.");
+      } else if (error.details?.detail) {
+        toast.error(`Error: ${error.details.detail}`);
       } else {
-        // Load all sample candidates when "Run All Samples" is clicked
-        setResults(sampleCandidates);
-        toast.success(`Analysis complete! Found ${sampleCandidates.length} candidates (${sampleCandidates.filter(c => !c.isFalsePositive).length} genuine, ${sampleCandidates.filter(c => c.isFalsePositive).length} false positive).`);
+        toast.error(error.message || "Failed to run demo detection.");
       }
-    }, 2000);
+    }
   };
 
   const handleRunRealDetection = async () => {
@@ -158,18 +222,27 @@ const Detect = () => {
         
         {/* Quick Demo Buttons */}
         <div className="flex flex-wrap gap-3 mb-6">
-          <Button variant="hero" onClick={() => handleRunDemo()} disabled={isProcessing}>
+          <Button 
+            variant="hero" 
+            onClick={() => handleRunDemo({ id: "KIC 10593626", name: "Kepler-90 System", mission: "kepler" })} 
+            disabled={isProcessing}
+          >
             <Zap className="h-4 w-4" />
-            Run All Samples
+            Demo: Kepler-90 (8 planets)
           </Button>
-          <Button variant="secondary" onClick={() => handleRunDemo(0)} disabled={isProcessing}>
-            Demo: Kepler-90i
+          <Button 
+            variant="secondary" 
+            onClick={() => handleRunDemo({ id: "KIC 8462852", name: "KIC 8462852 (Tabby's Star)", mission: "kepler" })} 
+            disabled={isProcessing}
+          >
+            Demo: Tabby's Star
           </Button>
-          <Button variant="secondary" onClick={() => handleRunDemo(2)} disabled={isProcessing}>
-            Demo: Kepler-452b
-          </Button>
-          <Button variant="outline" onClick={() => handleRunDemo(3)} disabled={isProcessing}>
-            Demo: False Positive
+          <Button 
+            variant="secondary" 
+            onClick={() => handleRunDemo({ id: "KIC 8191672", name: "Kepler-186 System", mission: "kepler" })} 
+            disabled={isProcessing}
+          >
+            Demo: Kepler-186
           </Button>
         </div>
       </div>
@@ -280,11 +353,11 @@ const Detect = () => {
               <Button 
                 variant="outline" 
                 className="w-full"
-                onClick={() => handleRunDemo()}
+                onClick={() => handleRunDemo({ id: "KIC 10593626", name: "Kepler-90", mission: "kepler" })}
                 disabled={isProcessing}
               >
                 <Zap className="h-5 w-5" />
-                Try All Samples
+                Try Demo: Kepler-90
               </Button>
             </CardContent>
           </Card>
@@ -326,11 +399,14 @@ const Detect = () => {
                 {results.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
                     <Telescope className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p className="mb-2">No results yet. Try one of our pre-loaded samples to begin.</p>
-                    <p className="text-sm mb-4">Samples include known planets and a false positive for comparison.</p>
-                    <Button variant="hero" onClick={() => handleRunDemo()}>
+                    <p className="mb-2">No results yet. Try a demo detection with real NASA data!</p>
+                    <p className="text-sm mb-4">Run detection on Kepler-90, an 8-planet system similar to our solar system.</p>
+                    <Button 
+                      variant="hero" 
+                      onClick={() => handleRunDemo({ id: "KIC 10593626", name: "Kepler-90", mission: "kepler" })}
+                    >
                       <Zap className="h-4 w-4" />
-                      Run All Samples
+                      Run Demo Detection
                     </Button>
                   </div>
                 ) : (
