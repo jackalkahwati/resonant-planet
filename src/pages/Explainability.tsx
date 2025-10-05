@@ -1,10 +1,95 @@
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Activity, Zap, Target, Info } from "lucide-react";
+import { TrendingUp, Activity, Zap, Target, Info, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import api from "@/lib/api";
+
+interface CandidateData {
+  candidate_id: string;
+  period_days: number;
+  t0_bjd: number;
+  depth_ppm: number;
+  duration_hours: number;
+  snr: number;
+  probability: number;
+  rl_action: string;
+  flags: {
+    odd_even_ok: boolean;
+    secondary_low: boolean;
+    shape_u_like: boolean;
+    density_consistent: boolean;
+  };
+  plots: {
+    phase_fold_png: string;
+    bls_png: string;
+    oddeven_png: string;
+    secondary_png: string;
+  };
+}
 
 const Explainability = () => {
+  const [searchParams] = useSearchParams();
+  const [loading, setLoading] = useState(true);
+  const [candidate, setCandidate] = useState<CandidateData | null>(null);
+  const jobId = searchParams.get("jobId");
+  const candidateId = searchParams.get("candidateId");
+
+  useEffect(() => {
+    const fetchCandidate = async () => {
+      if (!jobId) {
+        toast.error("No job ID provided");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const results = await api.getResults(jobId);
+        const foundCandidate = results.candidates.find(
+          (c: any) => !candidateId || c.candidate_id === candidateId
+        );
+
+        if (foundCandidate) {
+          setCandidate(foundCandidate);
+        } else {
+          toast.error("Candidate not found");
+        }
+      } catch (error) {
+        console.error("Failed to fetch candidate:", error);
+        toast.error("Failed to load candidate data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCandidate();
+  }, [jobId, candidateId]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading candidate data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!candidate) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Alert>
+          <AlertDescription>
+            No candidate data available. Please run a detection first.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -20,28 +105,28 @@ const Explainability = () => {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Candidate Overview</CardTitle>
-                <CardDescription>KIC 8462852 - Period 3.52 days</CardDescription>
+                <CardDescription>{candidate.candidate_id} - Period {candidate.period_days.toFixed(2)} days</CardDescription>
               </div>
-              <Badge className="text-lg px-4 py-2">Probability: 0.94</Badge>
+              <Badge className="text-lg px-4 py-2">Probability: {candidate.probability.toFixed(2)}</Badge>
             </div>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-4 gap-4">
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-1">Transit Depth</p>
-                <p className="text-2xl font-bold text-primary">1.2%</p>
+                <p className="text-2xl font-bold text-primary">{(candidate.depth_ppm / 10000).toFixed(2)}%</p>
               </div>
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-1">Duration</p>
-                <p className="text-2xl font-bold">2.8h</p>
+                <p className="text-2xl font-bold">{candidate.duration_hours.toFixed(1)}h</p>
               </div>
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-1">SNR</p>
-                <p className="text-2xl font-bold">12.4</p>
+                <p className="text-2xl font-bold">{candidate.snr.toFixed(1)}</p>
               </div>
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-1">Validation Score</p>
-                <p className="text-2xl font-bold text-primary">8.7/10</p>
+                <p className="text-2xl font-bold text-primary">{Object.values(candidate.flags).filter(Boolean).length}/4</p>
               </div>
             </div>
           </CardContent>
