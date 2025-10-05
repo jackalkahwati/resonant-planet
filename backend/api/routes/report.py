@@ -19,18 +19,15 @@ async def get_report(job_id: str):
     """
     job_store = get_job_store()
 
-    # Get job
     job = job_store.get_job(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
 
-    # Get candidates
     candidates = job_store.get_candidates(job_id)
 
     if not candidates:
         raise HTTPException(status_code=400, detail="No candidates to report")
 
-    # Generate report
     report_dir = settings.base_dir / settings.artifacts_dir / job_id
     report_dir.mkdir(parents=True, exist_ok=True)
 
@@ -43,7 +40,6 @@ async def get_report(job_id: str):
         output_path=str(report_path),
     )
 
-    # Return file
     return FileResponse(
         path=report_path,
         filename=f"resonant_worlds_report_{job_id}.pdf",

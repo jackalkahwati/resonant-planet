@@ -16,7 +16,7 @@ const Impact = () => {
       </div>
 
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Scientific Impact */}
+        {}
         <Card className="border-2 border-primary/30">
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -101,7 +101,7 @@ const Impact = () => {
           </CardContent>
         </Card>
 
-        {/* Technical Impact */}
+        {}
         <Card className="border-2 border-primary/30">
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -185,7 +185,7 @@ const Impact = () => {
           </CardContent>
         </Card>
 
-        {/* Educational Impact */}
+        {}
         <Card className="border-2 border-primary/30">
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -271,7 +271,7 @@ const Impact = () => {
           </CardContent>
         </Card>
 
-        {/* Future Vision */}
+        {}
         <Card className="bg-gradient-cosmic border-2 border-primary">
           <CardHeader>
             <CardTitle className="text-2xl text-center">Future Vision</CardTitle>

@@ -30,7 +30,6 @@ async def list_datasets():
 
         if demo_dir.exists():
             for csv_file in demo_dir.glob("*.csv"):
-                # Load to get metadata
                 try:
                     df = pd.read_csv(csv_file)
                     time_col = df.columns[0]
@@ -62,10 +61,8 @@ async def upload_dataset(file: UploadFile = File(...)):
     if not file.filename.endswith(".csv"):
         raise HTTPException(status_code=400, detail="Only CSV files are supported")
 
-    # Generate upload ID
     upload_id = str(uuid.uuid4())
 
-    # Save file
     upload_dir = settings.base_dir / settings.upload_dir
     upload_dir.mkdir(parents=True, exist_ok=True)
 
@@ -75,7 +72,6 @@ async def upload_dataset(file: UploadFile = File(...)):
         content = await file.read()
         f.write(content)
 
-    # Validate CSV
     try:
         df = pd.read_csv(file_path)
 
@@ -85,7 +81,7 @@ async def upload_dataset(file: UploadFile = File(...)):
         logger.info(f"Uploaded dataset {upload_id}: {len(df)} points")
 
     except Exception as e:
-        file_path.unlink()  # Delete invalid file
+        file_path.unlink()
         raise HTTPException(status_code=400, detail=f"Invalid CSV file: {str(e)}")
 
     return UploadResponse(
@@ -98,7 +94,6 @@ async def upload_dataset(file: UploadFile = File(...)):
 @router.get("/{dataset_id}", response_model=Dataset)
 async def get_dataset_info(dataset_id: str):
     """Get information about a specific dataset."""
-    # Check demo datasets
     if settings.demo_mode:
         demo_file = settings.base_dir / settings.demo_datasets_path / f"{dataset_id}.csv"
 
@@ -115,7 +110,6 @@ async def get_dataset_info(dataset_id: str):
                 time_span_days=float(df[time_col].max() - df[time_col].min()),
             )
 
-    # Check uploaded datasets
     upload_file = settings.base_dir / settings.upload_dir / f"{dataset_id}.csv"
 
     if upload_file.exists():

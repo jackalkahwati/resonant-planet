@@ -21,25 +21,25 @@ const Detect = () => {
     setIsProcessing(true);
     setShowComparison(false);
     
-    // If specific candidate requested, show only that one
+    
     if (candidateIndex !== undefined) {
       toast.info(`Starting analysis on ${sampleCandidates[candidateIndex].name}...`);
     } else {
       toast.info("Starting analysis on pre-loaded sample data...");
     }
     
-    // Simulate processing
+    
     setTimeout(() => {
       setIsProcessing(false);
       
-      // If specific candidate requested, show only that one
+      
       if (candidateIndex !== undefined) {
         const specificCandidate = [sampleCandidates[candidateIndex]];
         setResults(specificCandidate);
         setSelectedCandidate(sampleCandidates[candidateIndex]);
         toast.success(`Analysis complete! Found 1 candidate (${specificCandidate[0].isFalsePositive ? 'false positive' : 'genuine'}).`);
       } else {
-        // Load all sample candidates when "Run All Samples" is clicked
+        
         setResults(sampleCandidates);
         toast.success(`Analysis complete! Found ${sampleCandidates.length} candidates (${sampleCandidates.filter(c => !c.isFalsePositive).length} genuine, ${sampleCandidates.filter(c => c.isFalsePositive).length} false positive).`);
       }
@@ -59,7 +59,7 @@ const Detect = () => {
           Run analysis on pre-loaded sample data or upload your own light curves
         </p>
         
-        {/* Quick Demo Buttons */}
+        {}
         <div className="flex flex-wrap gap-3 mb-6">
           <Button variant="hero" onClick={() => handleRunDemo()} disabled={isProcessing}>
             <Zap className="h-4 w-4" />
@@ -78,7 +78,7 @@ const Detect = () => {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Left Panel - Input */}
+        {}
         <div className="lg:col-span-1 space-y-6">
           <Card>
             <CardHeader>
@@ -187,7 +187,7 @@ const Detect = () => {
           </Card>
         </div>
 
-        {/* Right Panel - Results or Comparison */}
+        {}
         <div className="lg:col-span-2">
           {showComparison && selectedCandidate ? (
             <div className="space-y-6">

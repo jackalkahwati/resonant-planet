@@ -9,7 +9,7 @@ import heroImage from "@/assets/hero-exoplanet.jpg";
 const Home = () => {
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
+      {}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-space" />
         <div
@@ -69,7 +69,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Features Grid */}
+      {}
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="grid md:grid-cols-3 gap-6">
           <Card className="bg-card border-border hover:border-primary/50 transition-colors">
@@ -128,7 +128,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Method Overview */}
+      {}
       <section className="bg-gradient-data py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
@@ -161,12 +161,12 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Storytelling Walkthrough */}
+      {}
       <section className="container mx-auto px-4 py-8">
         <StorytellingWalkthrough />
       </section>
 
-      {/* K2-18b Case Study */}
+      {}
       <section className="container mx-auto px-4 py-16 md:py-24">
         <Card className="border-primary/30 bg-gradient-data">
           <CardHeader>
@@ -260,7 +260,7 @@ const Home = () => {
         </Card>
       </section>
 
-      {/* Why This Matters */}
+      {}
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">

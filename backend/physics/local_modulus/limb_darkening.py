@@ -33,8 +33,6 @@ def compute_limb_darkening(
     This is a simplified lookup table. For production, use proper
     interpolation from Claret tables or compute from stellar models.
     """
-    # Simplified lookup for solar-like stars
-    # Format: Teff range -> (u1, u2)
     ld_table = {
         (3000, 4000): (0.65, 0.15),
         (4000, 5000): (0.55, 0.20),
@@ -44,12 +42,10 @@ def compute_limb_darkening(
         (8000, 10000): (0.20, 0.25),
     }
 
-    # Find matching range
     for (teff_min, teff_max), (u1, u2) in ld_table.items():
         if teff_min <= stellar_teff < teff_max:
             return u1, u2
 
-    # Default to solar-like if outside range
     return 0.30, 0.20
 
 

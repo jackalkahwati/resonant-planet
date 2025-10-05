@@ -70,10 +70,8 @@ def compute_bls_power(
     float
         BLS power statistic
     """
-    # Generate box model
     in_transit = box_model(time, period, t0, duration)
 
-    # Compute in-transit and out-of-transit statistics
     n_in = np.sum(in_transit)
     n_out = len(time) - n_in
 
@@ -88,7 +86,6 @@ def compute_bls_power(
     if depth <= 0:
         return 0.0
 
-    # BLS power (Signal Detection Efficiency)
     power = (depth**2 * n_in * n_out) / (n_in + n_out)
 
     return power
@@ -125,10 +122,8 @@ def bls_search(
     Tuple[np.ndarray, np.ndarray]
         (periods, powers) arrays
     """
-    # Generate period grid (logarithmic spacing)
     periods = np.logspace(np.log10(min_period), np.log10(max_period), n_periods)
 
-    # Duration grid (0.5% to 10% of period)
     if duration_grid is None:
         duration_fractions = np.array([0.01, 0.02, 0.05, 0.10])
     else:
@@ -137,13 +132,11 @@ def bls_search(
     powers = np.zeros(len(periods))
 
     for i, period in enumerate(periods):
-        # Search over durations
         max_power = 0.0
 
         for duration_frac in duration_fractions:
             duration = period * duration_frac
 
-            # Search over phases (use a few samples per period)
             n_phase = max(3, int(period / np.median(np.diff(time))))
             phase_samples = np.linspace(0, period, min(n_phase, 20))
 
@@ -185,7 +178,6 @@ def find_bls_peaks(
     """
     peak_indices = []
 
-    # Sort by power
     sorted_indices = np.argsort(powers)[::-1]
 
     for idx in sorted_indices:
@@ -194,7 +186,6 @@ def find_bls_peaks(
 
         period = periods[idx]
 
-        # Check separation from existing peaks
         too_close = False
         for peak_idx in peak_indices:
             peak_period = periods[peak_idx]
@@ -232,7 +223,6 @@ def refine_period(
     Tuple[float, float, float, float]
         (refined_period, best_t0, best_duration, best_depth)
     """
-    # Fine grid around guess
     period_min = period_guess * (1 - tolerance)
     period_max = period_guess * (1 + tolerance)
     periods_fine = np.linspace(period_min, period_max, 100)
@@ -240,14 +230,12 @@ def refine_period(
     best_power = 0.0
     best_params = (period_guess, time[0], 0.1, 0.01)
 
-    # Duration grid
     duration_fractions = np.linspace(0.005, 0.15, 20)
 
     for period in periods_fine:
         for duration_frac in duration_fractions:
             duration = period * duration_frac
 
-            # Phase grid
             n_phase = 10
             phases = np.linspace(0, period, n_phase)
 
@@ -257,7 +245,6 @@ def refine_period(
                 power = compute_bls_power(time, flux, period, t0, duration)
 
                 if power > best_power:
-                    # Compute depth
                     in_transit = box_model(time, period, t0, duration)
                     flux_in = np.mean(flux[in_transit > 0.5])
                     flux_out = np.mean(flux[in_transit < 0.5])
@@ -269,7 +256,6 @@ def refine_period(
     return best_params
 
 
-# Cache for BLS results
 _bls_cache = {}
 
 def extract_bls_features(
@@ -300,27 +286,21 @@ def extract_bls_features(
     List[BLSCandidate]
         Top BLS candidates, ranked by SNR
     """
-    # Check cache
     cache_key = f"{hash_array(time)}_{hash_array(flux)}_{min_period}_{max_period}_{max_candidates}"
     if cache_key in _bls_cache:
         return _bls_cache[cache_key]
     
-    # Run BLS search
     periods, powers = bls_search(time, flux, min_period, max_period)
 
-    # Find peaks
     peak_indices = find_bls_peaks(periods, powers, n_peaks=max_candidates)
 
-    # Refine and package candidates
     candidates = []
 
     for rank, idx in enumerate(peak_indices):
         period_guess = periods[idx]
 
-        # Refine
         period, t0, duration, depth = refine_period(time, flux, period_guess)
 
-        # Estimate SNR
         noise = np.std(flux)
         snr = depth / noise if noise > 0 else 0.0
 
@@ -336,10 +316,8 @@ def extract_bls_features(
 
         candidates.append(candidate)
 
-    # Sort by SNR
     candidates.sort(key=lambda c: c.snr, reverse=True)
 
-    # Store in cache (limit cache size)
     if len(_bls_cache) > 50:
         _bls_cache.clear()
     _bls_cache[cache_key] = candidates

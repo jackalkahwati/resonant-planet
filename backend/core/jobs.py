@@ -34,7 +34,6 @@ class JobStore:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
-        # Jobs table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS jobs (
                 job_id TEXT PRIMARY KEY,
@@ -49,7 +48,6 @@ class JobStore:
             )
         """)
 
-        # Candidates table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS candidates (
                 candidate_id TEXT PRIMARY KEY,
@@ -275,7 +273,6 @@ class JobStore:
         return candidates
 
 
-# Global job store instance
 _job_store: Optional[JobStore] = None
 
 

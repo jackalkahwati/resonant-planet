@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Full Integration Test: NASA Data + Modulus API + Exoplanet Detection
 
@@ -15,7 +14,6 @@ Prerequisites:
 import sys
 import os
 
-# Set environment to use Modulus API
 os.environ['USE_MODULUS_API'] = 'true'
 os.environ['MODULUS_API_URL'] = 'http://localhost:8000'
 os.environ['MODULUS_API_KEY'] = 'demo-key'
@@ -28,7 +26,6 @@ print("🚀 FULL INTEGRATION TEST: NASA + Modulus + Exoplanet Detection")
 print("=" * 80)
 print()
 
-# Test 1: Check Modulus API
 print("1. Testing Modulus API connection...")
 try:
     import requests
@@ -54,7 +51,6 @@ except Exception as e:
 
 print()
 
-# Test 2: Check NASA data access
 print("2. Testing NASA data access (lightkurve)...")
 try:
     from core.data_sources import fetch_confirmed_planet, LIGHTKURVE_AVAILABLE
@@ -64,7 +60,6 @@ try:
         print("   → Install with: pip install lightkurve")
         print("   → Using demo data instead...")
         
-        # Load demo data
         demo_file = Path("assets/demos/kepler_tp.csv")
         data = np.loadtxt(demo_file, delimiter=',', skiprows=1)
         time = data[:, 0]
@@ -89,7 +84,6 @@ except Exception as e:
 
 print()
 
-# Test 3: Test Modulus physics integration
 print("3. Testing Modulus-powered transit fitting...")
 try:
     from physics import fit_transit, get_backend_info
@@ -98,7 +92,6 @@ try:
     print(f"   ✅ Backend: {backend_info.get('name', 'unknown')}")
     print(f"   ✅ Using API: {not backend_info.get('is_mock', True)}")
     
-    # Fit transit using Modulus
     result = fit_transit(time, flux, flux_err)
     
     print(f"   ✅ Transit fit completed!")
@@ -116,7 +109,6 @@ except Exception as e:
 
 print()
 
-# Test 4: Physics validation checks
 print("4. Testing physics validation checks...")
 try:
     from physics import run_checks
@@ -136,17 +128,14 @@ except Exception as e:
 
 print()
 
-# Test 5: Full detection pipeline
 print("5. Testing complete detection pipeline...")
 try:
     from core.features_bls import extract_bls_features
     from core.preprocess import preprocess_pipeline
     
-    # Preprocess
     time_clean, flux_clean, flux_err_clean = preprocess_pipeline(time, flux, flux_err)
     print(f"   ✅ Preprocessed: {len(time_clean)} points")
     
-    # BLS search
     candidates = extract_bls_features(
         time_clean, flux_clean,
         min_period=0.5, max_period=20.0,
@@ -162,12 +151,10 @@ except Exception as e:
 
 print()
 
-# Test 6: Modulus problem solving capability
 print("6. Testing Modulus physics reasoning...")
 try:
     import requests
     
-    # Ask Modulus a transit physics question
     problem = f"""
     An exoplanet has been detected with:
     - Period: {result['period_days']:.2f} days
@@ -200,7 +187,6 @@ except Exception as e:
 
 print()
 
-# Summary
 print("=" * 80)
 print("✅ INTEGRATION TEST COMPLETE!")
 print("=" * 80)

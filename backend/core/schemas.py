@@ -13,9 +13,6 @@ from typing import List, Optional, Tuple, Literal
 from datetime import datetime
 
 
-# ============================================================================
-# Transit Physics Models
-# ============================================================================
 
 class TransitFit(BaseModel):
     """Result of Modulus transit fit."""
@@ -41,9 +38,6 @@ class PhysicsChecks(BaseModel):
     stellar_density_consistent: bool
 
 
-# ============================================================================
-# Biosignature Models
-# ============================================================================
 
 class MolecularFeature(BaseModel):
     """Detected molecular absorption feature."""
@@ -82,9 +76,6 @@ class BiosignatureRequest(BaseModel):
     planet_age_gyr: float = Field(4.5, description="Planet age in billion years")
 
 
-# ============================================================================
-# Candidate Models
-# ============================================================================
 
 class CandidateFlags(BaseModel):
     """Flags from classifier and RL policy."""
@@ -112,16 +103,13 @@ class Candidate(BaseModel):
     duration_hours: float
     snr: float
     rl_action: str
-    flags: dict  # Physics check flags
-    plots: dict  # Plot URLs
+    flags: dict
+    plots: dict
     fit: Optional[TransitFit] = None
     physics: Optional[PhysicsChecks] = None
-    biosignature: Optional[BiosignatureResult] = None  # NEW!
+    biosignature: Optional[BiosignatureResult] = None
 
 
-# ============================================================================
-# Job Management Models
-# ============================================================================
 
 class JobStatus(BaseModel):
     """Status of a detection job."""
@@ -143,9 +131,6 @@ class RunParams(BaseModel):
     max_candidates: int = Field(default=10, ge=1, le=50, description="Max candidates to return")
 
 
-# ============================================================================
-# Dataset Models
-# ============================================================================
 
 class Dataset(BaseModel):
     """Available dataset for analysis."""
@@ -163,9 +148,6 @@ class UploadResponse(BaseModel):
     message: str
 
 
-# ============================================================================
-# Comparison Models
-# ============================================================================
 
 class CompareRequest(BaseModel):
     """Request to compare candidates against baseline."""
@@ -183,9 +165,6 @@ class CompareResult(BaseModel):
     notes: str
 
 
-# ============================================================================
-# NASA Data Fetch Models
-# ============================================================================
 
 class FetchLightCurveRequest(BaseModel):
     """Request to fetch light curve from NASA archives."""
@@ -205,9 +184,6 @@ class ConfirmedPlanet(BaseModel):
     discovery_year: int
 
 
-# ============================================================================
-# Missing Legacy Schemas (for compatibility)
-# ============================================================================
 
 class ResultsResponse(BaseModel):
     """Response with detection results."""

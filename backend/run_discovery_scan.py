@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 DISCOVERY SCAN: Run complete exoplanet and biosignature analysis
 Uses current Modulus-Small (Qwen 2-1.5B) system to find potential discoveries
@@ -10,14 +9,12 @@ from pathlib import Path
 from datetime import datetime
 import traceback
 
-# Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Add current directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
 try:
@@ -41,19 +38,15 @@ def scan_biosignatures():
     
     spectra_dir = Path(__file__).parent / "assets" / "spectra"
     
-    # List of all available spectra
     spectra_files = [
-        # Synthetic test cases
         ("earth_like_with_life.csv", "Earth-like (synthetic)", {"temperature_k": 288, "radius_earth": 1.0}),
         ("mars_like_no_life.csv", "Mars-like (synthetic)", {"temperature_k": 210, "radius_earth": 0.53}),
         ("venus_like_with_ph3.csv", "Venus-like with PH3 (synthetic)", {"temperature_k": 737, "radius_earth": 0.95}),
         
-        # Real JWST observations
         ("jwst_real/jwst_k218b_niriss.csv", "K2-18b JWST/NIRISS", {"temperature_k": 270, "radius_earth": 2.6}),
         ("jwst_real/jwst_trappist1e_nirspec.csv", "TRAPPIST-1e JWST/NIRSpec", {"temperature_k": 250, "radius_earth": 0.92}),
         ("jwst_real/jwst_wasp96b_nirspec.csv", "WASP-96b JWST/NIRSpec", {"temperature_k": 1350, "radius_earth": 13.4}),
         
-        # Published data
         ("published_real/jwst_k218b_published.csv", "K2-18b (published)", {"temperature_k": 270, "radius_earth": 2.6}),
         ("published_real/jwst_k218b_biosignature.csv", "K2-18b biosignature candidate", {"temperature_k": 270, "radius_earth": 2.6}),
         ("published_real/jwst_trappist1e_future.csv", "TRAPPIST-1e (projected)", {"temperature_k": 250, "radius_earth": 0.92}),
@@ -78,24 +71,20 @@ def scan_biosignatures():
         logger.info(f"Parameters: T={params['temperature_k']}K, R={params['radius_earth']}R⊕")
         
         try:
-            # Load spectrum
             wavelengths, depths, errors = load_jwst_spectrum(filepath)
             logger.info(f"Loaded {len(wavelengths)} wavelength points")
             
-            # Prepare planet parameters
             planet_params = {
                 'name': name,
                 'temperature_k': params['temperature_k'],
                 'planet_radius_earth': params['radius_earth'],
-                'stellar_uv_flux': 1.0,  # Assume solar-like
+                'stellar_uv_flux': 1.0,
                 'age_gyr': 4.5,
             }
             
-            # Run biosignature analysis
             logger.info("Running biosignature detection...")
             result = detector.analyze_spectrum(wavelengths, depths, planet_params)
             
-            # Log results
             logger.info(f"✓ Analysis complete")
             logger.info(f"  Biosignature Score: {result.biosignature_score:.3f}")
             logger.info(f"  Detected Molecules: {', '.join(result.detected_molecules) if result.detected_molecules else 'None'}")
@@ -103,7 +92,6 @@ def scan_biosignatures():
             logger.info(f"  False Positive Probability: {result.false_positive_probability:.3f}")
             logger.info(f"  Confidence: {result.confidence_level}")
             
-            # Flag interesting candidates
             if result.biosignature_score > 0.7:
                 logger.info("  🌟 HIGH BIOSIGNATURE SCORE - CANDIDATE FOR FOLLOW-UP!")
             elif result.biosignature_score > 0.5:
@@ -138,7 +126,6 @@ def generate_report(biosig_results):
     logger.info("DISCOVERY SCAN REPORT")
     logger.info("="*80)
     
-    # Sort by biosignature score
     sorted_results = sorted(
         [r for r in biosig_results if 'biosignature_score' in r],
         key=lambda x: x['biosignature_score'],
@@ -148,7 +135,6 @@ def generate_report(biosig_results):
     logger.info(f"\nScanned {len(biosig_results)} spectra")
     logger.info(f"Successful analyses: {len(sorted_results)}")
     
-    # Top candidates
     high_confidence = [r for r in sorted_results if r['biosignature_score'] > 0.7]
     moderate = [r for r in sorted_results if 0.5 < r['biosignature_score'] <= 0.7]
     low = [r for r in sorted_results if r['biosignature_score'] <= 0.5]
@@ -172,7 +158,6 @@ def generate_report(biosig_results):
         for i, result in enumerate(moderate, 1):
             logger.info(f"  {i}. {result['target']} (Score: {result['biosignature_score']:.3f})")
     
-    # Save detailed results
     output_file = Path(__file__).parent / "discovery_scan_results.json"
     with open(output_file, 'w') as f:
         json.dump({
@@ -189,7 +174,6 @@ def generate_report(biosig_results):
     
     logger.info(f"\n📄 Full results saved to: {output_file}")
     
-    # Bottom line assessment
     logger.info("\n" + "="*80)
     logger.info("ASSESSMENT WITH CURRENT SYSTEM (Modulus-Small)")
     logger.info("="*80)
@@ -226,10 +210,8 @@ def main():
     logger.info(f"System: Modulus-Small (Qwen 2-1.5B)")
     logger.info(f"Start time: {datetime.now()}")
     
-    # Run biosignature scan
     biosig_results = scan_biosignatures()
     
-    # Generate report
     generate_report(biosig_results)
 
 if __name__ == "__main__":

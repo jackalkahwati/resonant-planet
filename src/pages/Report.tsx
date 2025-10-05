@@ -26,7 +26,7 @@ const Report = () => {
               <CardDescription>Candidate KIC 8462852 Analysis Report</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Title Section */}
+              {}
               <div className="border-b border-border pb-6">
                 <h2 className="text-2xl font-bold mb-2">Exoplanet Transit Detection Report</h2>
                 <div className="flex items-center gap-2 mb-4">
@@ -53,7 +53,7 @@ const Report = () => {
                 </div>
               </div>
 
-              {/* Summary */}
+              {}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold">Executive Summary</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -65,7 +65,7 @@ const Report = () => {
                 </p>
               </div>
 
-              {/* Key Metrics */}
+              {}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold">Key Metrics</h3>
                 <div className="grid md:grid-cols-3 gap-4">
@@ -84,7 +84,7 @@ const Report = () => {
                 </div>
               </div>
 
-              {/* Validation Results */}
+              {}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold">Validation Tests</h3>
                 <div className="space-y-2">
@@ -107,7 +107,7 @@ const Report = () => {
                 </div>
               </div>
 
-              {/* Method Summary */}
+              {}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold">Method Summary</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -119,7 +119,7 @@ const Report = () => {
                 </p>
               </div>
 
-              {/* Limitations */}
+              {}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold">Limitations & Uncertainties</h3>
                 <ul className="text-sm text-muted-foreground space-y-2">
@@ -130,7 +130,7 @@ const Report = () => {
                 </ul>
               </div>
 
-              {/* Next Steps */}
+              {}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold">Recommended Next Steps</h3>
                 <ol className="text-sm text-muted-foreground space-y-2">
@@ -144,7 +144,7 @@ const Report = () => {
           </Card>
         </div>
 
-        {/* Export Options */}
+        {}
         <div className="space-y-6">
           <Card>
             <CardHeader>

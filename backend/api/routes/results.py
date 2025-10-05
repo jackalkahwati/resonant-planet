@@ -15,15 +15,12 @@ async def get_results(job_id: str):
     """Get results for a completed job."""
     job_store = get_job_store()
 
-    # Check job exists
     job = job_store.get_job(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
 
-    # Get candidates
     candidates_raw = job_store.get_candidates(job_id)
 
-    # Count by action
     accepted_count = sum(1 for c in candidates_raw if c["rl_action"] == "accept")
     rejected_count = sum(1 for c in candidates_raw if c["rl_action"] == "reject")
     human_review_count = sum(1 for c in candidates_raw if c["rl_action"] == "human_review")

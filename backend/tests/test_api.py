@@ -7,7 +7,6 @@ import pandas as pd
 from pathlib import Path
 import sys
 
-# Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from api.main import app
@@ -50,11 +49,9 @@ class TestAPI:
 
     def test_list_datasets_with_demos(self):
         """Test listing demo datasets."""
-        # Ensure demo datasets exist
         demo_dir = settings.base_dir / settings.demo_datasets_path
         demo_dir.mkdir(parents=True, exist_ok=True)
 
-        # Create a test demo file
         test_demo = demo_dir / "test_demo.csv"
         df = pd.DataFrame({"time": [0, 1, 2], "flux": [1.0, 0.99, 1.0], "flux_err": [0.01, 0.01, 0.01]})
         df.to_csv(test_demo, index=False)
@@ -64,12 +61,10 @@ class TestAPI:
         assert response.status_code == 200
         data = response.json()
 
-        # Clean up
         test_demo.unlink(missing_ok=True)
 
     def test_upload_dataset(self):
         """Test uploading a dataset."""
-        # Create test CSV
         test_data = "time,flux,flux_err\n0.0,1.0,0.01\n1.0,0.99,0.01\n2.0,1.0,0.01\n"
 
         files = {"file": ("test.csv", test_data, "text/csv")}
@@ -118,7 +113,6 @@ class TestAPI:
         assert isinstance(data, list)
         assert len(data) == 2
 
-        # Check structure
         for comparison in data:
             assert "candidate_id" in comparison
             assert "baseline" in comparison

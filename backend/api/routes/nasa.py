@@ -27,14 +27,14 @@ logger = logging.getLogger(__name__)
 class TargetSearchRequest(BaseModel):
     mission: str = "Kepler"  # Kepler, TESS, K2
     coordinates: Optional[str] = None  # e.g., "19h50m47s +40d03m47s"
-    radius: float = 120.0  # arcseconds
+    radius: float = 120.0
     limit: int = 100
 
 
 class FetchRequest(BaseModel):
     target_id: str  # e.g., "KIC 11442793" or "Kepler-90i"
     mission: str = "Kepler"
-    quarter: Optional[int] = None  # Specific quarter/sector
+    quarter: Optional[int] = None
 
 
 class NASADataset(BaseModel):
@@ -131,10 +131,8 @@ async def fetch_nasa_data(request: FetchRequest):
         )
     
     try:
-        # Fetch data
         logger.info(f"Fetching {request.target_id} from {request.mission}...")
         
-        # Check if it's a confirmed planet name
         if request.target_id in CONFIRMED_PLANETS:
             time, flux, flux_err = fetch_confirmed_planet(request.target_id, quarter=request.quarter)
         elif request.mission.lower() == 'kepler':
@@ -144,17 +142,14 @@ async def fetch_nasa_data(request: FetchRequest):
         else:
             raise ValueError(f"Unsupported mission: {request.mission}")
         
-        # Generate dataset ID
         dataset_id = str(uuid.uuid4())
         
-        # Save to CSV
         upload_dir = settings.base_dir / settings.upload_dir
         upload_dir.mkdir(exist_ok=True, parents=True)
         
         filename = f"{dataset_id}_nasa_{request.mission.lower()}_{request.target_id.replace(' ', '_')}.csv"
         filepath = upload_dir / filename
         
-        # Write CSV
         data = np.column_stack([time, flux, flux_err])
         np.savetxt(
             filepath,

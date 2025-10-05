@@ -56,9 +56,6 @@ class ModulusBiosignatureWorkflow:
         if api_key:
             self.session.headers.update({"X-API-Key": api_key})
 
-    # ------------------------------------------------------------------
-    # High-level helpers
-    # ------------------------------------------------------------------
     def compute_gas_disequilibrium(self, gases_ppm: Dict[str, float]) -> BiosignatureComputation:
         """Evaluate log10(CO2/CH4) disequilibrium index using Modulus."""
 
@@ -123,20 +120,17 @@ class ModulusBiosignatureWorkflow:
         if {"CO2", "CH4"}.issubset(snapshot.gas_mixing_ratios_ppm):
             try:
                 computations.append(self.compute_gas_disequilibrium(snapshot.gas_mixing_ratios_ppm))
-            except Exception as exc:  # pragma: no cover - defensive logging
+            except Exception as exc:
                 logger.warning("Failed to compute CO2/CH4 disequilibrium via Modulus: %s", exc)
 
         if snapshot.greenhouse_temperature_k is not None:
             try:
                 computations.append(self.compute_greenhouse_offset(snapshot))
-            except Exception as exc:  # pragma: no cover - defensive logging
+            except Exception as exc:
                 logger.warning("Failed to compute greenhouse offset via Modulus: %s", exc)
 
         return computations
 
-    # ------------------------------------------------------------------
-    # Internal helpers
-    # ------------------------------------------------------------------
     def _post_solve_v2(self, question: str) -> Dict[str, Any]:
         payload = {"question": question}
         url = f"{self.base_url}/solve_v2"

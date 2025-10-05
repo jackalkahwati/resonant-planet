@@ -33,18 +33,14 @@ def mandel_agol_transit(time: np.ndarray, t0: float, period: float, depth: float
     np.ndarray
         Model flux (1.0 = baseline)
     """
-    # Fold time around transits
     phase = ((time - t0 + 0.5 * period) % period) - 0.5 * period
 
-    # Simple box model with ingress/egress smoothing
     half_dur = duration / 2.0
     flux = np.ones_like(time)
 
-    # In-transit points
     in_transit = np.abs(phase) < half_dur
 
-    # Smooth ingress/egress (linear approximation)
-    ingress_duration = duration * 0.1  # 10% of duration for ingress/egress
+    ingress_duration = duration * 0.1
     ingress = (half_dur - np.abs(phase)) / ingress_duration
     ingress = np.clip(ingress, 0, 1)
 
@@ -75,51 +71,43 @@ def fit_transit_parameters(
     dict
         Fitted parameters and diagnostics
     """
-    # Initial parameter estimation
     if initial_period is None:
-        initial_period = 3.0  # Default guess
+        initial_period = 3.0
 
-    # Find approximate transit depth
     flux_smooth = flux - np.median(flux) + 1.0
     depth_guess = np.clip(1.0 - np.min(flux_smooth), 0.0001, 0.1)
 
-    # Initial parameters: [t0, period, depth, duration, impact_param]
     t0_guess = time[np.argmin(flux)]
-    duration_guess = 0.1  # days
+    duration_guess = 0.1
     b_guess = 0.3
 
     x0 = np.array([t0_guess, initial_period, depth_guess, duration_guess, b_guess])
 
-    # Bounds
     bounds = [
-        (time[0], time[-1]),  # t0
-        (0.5, 100.0),  # period
-        (0.0001, 0.5),  # depth
-        (0.01, 1.0),  # duration
-        (0.0, 0.95),  # impact parameter
+        (time[0], time[-1]),
+        (0.5, 100.0),
+        (0.0001, 0.5),
+        (0.01, 1.0),
+        (0.0, 0.95),
     ]
 
-    # Chi-square objective
     def chi2(params):
         t0, period, depth, duration, b = params
         model = mandel_agol_transit(time, t0, period, depth, duration, b)
         residuals = (flux - model) / flux_err
         return np.sum(residuals**2)
 
-    # Optimize
     try:
         result = minimize(chi2, x0, method="L-BFGS-B", bounds=bounds)
 
         if result.success:
             t0, period, depth, duration, b = result.x
 
-            # Compute SNR
             model = mandel_agol_transit(time, t0, period, depth, duration, b)
             residuals = flux - model
             noise = np.std(residuals)
             snr = depth / noise if noise > 0 else 0.0
 
-            # Compute log-likelihood
             log_like = -0.5 * result.fun
 
             return {

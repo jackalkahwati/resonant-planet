@@ -35,7 +35,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/biosignatures", tags=["biosignatures"])
 
 
-# Initialize detector
 biosignature_detector = None
 
 def get_detector():
@@ -61,10 +60,8 @@ async def upload_spectrum(file: UploadFile = File(...)):
     - uncertainty_ppm (or ERROR) - optional
     """
     try:
-        # Generate unique ID
         spectrum_id = str(uuid.uuid4())
         
-        # Save uploaded file
         spectra_dir = settings.base_dir / "assets" / "spectra" / "uploaded"
         spectra_dir.mkdir(parents=True, exist_ok=True)
         
@@ -74,7 +71,6 @@ async def upload_spectrum(file: UploadFile = File(...)):
         with open(filepath, 'wb') as f:
             f.write(content)
         
-        # Load and validate
         wavelengths, depths, uncertainties = load_jwst_spectrum(filepath)
         
         validation = validate_spectrum(wavelengths, depths, uncertainties)
@@ -109,10 +105,8 @@ async def analyze_biosignatures(request: BiosignatureRequest):
     5. Computes biosignature confidence
     """
     try:
-        # Load spectrum
         spectra_dir = settings.base_dir / "assets" / "spectra"
         
-        # Check both demo and uploaded directories
         filepath = None
         for subdir in ['uploaded', '']:
             check_dir = spectra_dir / subdir if subdir else spectra_dir
@@ -126,7 +120,6 @@ async def analyze_biosignatures(request: BiosignatureRequest):
         
         wavelengths, depths, uncertainties = load_jwst_spectrum(filepath)
         
-        # Run biosignature analysis
         detector = get_detector()
         
         planet_params = {
@@ -173,7 +166,6 @@ async def simulate_spectrum(
             noise_level_ppm=noise_ppm
         )
         
-        # Save to temp file
         temp_dir = settings.base_dir / "assets" / "spectra" / "temp"
         temp_dir.mkdir(parents=True, exist_ok=True)
         
@@ -211,20 +203,17 @@ async def list_spectroscopic_datasets():
     
     spectra_dir = settings.base_dir / "assets" / "spectra"
     
-    # Find all CSV files
     if spectra_dir.exists():
         for filepath in spectra_dir.rglob("*.csv"):
             if 'temp' in str(filepath):
                 continue
             
-            # Extract spectrum ID from filename
             stem = filepath.stem
             if '_' in stem:
                 spectrum_id = stem.split('_')[0]
             else:
                 spectrum_id = stem
             
-            # Try to load to get stats
             try:
                 df = pd.read_csv(filepath)
                 wl_range = (df.iloc[:, 0].min(), df.iloc[:, 0].max())

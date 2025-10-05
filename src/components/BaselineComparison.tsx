@@ -25,7 +25,7 @@ export const BaselineComparison = ({ candidate }: BaselineComparisonProps) => {
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        {/* Classic Pipeline */}
+        {}
         <Card className="border-muted">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -59,14 +59,14 @@ export const BaselineComparison = ({ candidate }: BaselineComparisonProps) => {
           </CardContent>
         </Card>
 
-        {/* Arrow */}
+        {}
         <div className="hidden md:flex items-center justify-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
           <div className="bg-background rounded-full p-3 border-2 border-primary shadow-lg">
             <ArrowRight className="h-6 w-6 text-primary" />
           </div>
         </div>
 
-        {/* Resonant System */}
+        {}
         <Card className={`border-2 ${candidate.isFalsePositive ? 'border-primary' : 'border-primary'}`}>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -118,7 +118,7 @@ export const BaselineComparison = ({ candidate }: BaselineComparisonProps) => {
         </Card>
       </div>
 
-      {/* Key Insight */}
+      {}
       <Card className="bg-gradient-data border-primary/30">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">

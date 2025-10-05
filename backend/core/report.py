@@ -45,14 +45,11 @@ def generate_pdf_report(
     str
         Path to generated PDF
     """
-    # Create document
     doc = SimpleDocTemplate(output_path, pagesize=letter)
     story = []
 
-    # Get styles
     styles = getSampleStyleSheet()
 
-    # Custom styles
     title_style = ParagraphStyle(
         "CustomTitle",
         parent=styles["Heading1"],
@@ -77,12 +74,10 @@ def generate_pdf_report(
         leading=14,
     )
 
-    # Title
     story.append(Paragraph("Resonant Worlds Explorer", title_style))
     story.append(Paragraph("Exoplanet Detection Report", styles["Heading2"]))
     story.append(Spacer(1, 0.3 * inch))
 
-    # Metadata
     metadata = [
         ["Job ID:", job_id],
         ["Dataset:", dataset_name],
@@ -105,7 +100,6 @@ def generate_pdf_report(
     story.append(metadata_table)
     story.append(Spacer(1, 0.4 * inch))
 
-    # Method summary
     if method_summary:
         story.append(Paragraph("Methods", heading_style))
         story.append(Paragraph(method_summary, body_style))
@@ -122,7 +116,6 @@ def generate_pdf_report(
         story.append(Paragraph(default_summary.strip(), body_style))
         story.append(Spacer(1, 0.3 * inch))
 
-    # Summary statistics
     accepted = sum(1 for c in candidates if c.get("rl_action") == "accept")
     rejected = sum(1 for c in candidates if c.get("rl_action") == "reject")
     review = sum(1 for c in candidates if c.get("rl_action") == "human_review")
@@ -155,13 +148,11 @@ def generate_pdf_report(
     story.append(summary_table)
     story.append(Spacer(1, 0.4 * inch))
 
-    # Top candidates
     story.append(Paragraph("Top Candidates", heading_style))
 
     for i, candidate in enumerate(candidates[:5], 1):
         story.append(Paragraph(f"Candidate {i}: {candidate['candidate_id']}", styles["Heading3"]))
 
-        # Candidate details
         details = [
             ["Parameter", "Value"],
             ["Probability", f"{candidate['probability']:.3f}"],
@@ -192,7 +183,6 @@ def generate_pdf_report(
         story.append(details_table)
         story.append(Spacer(1, 0.2 * inch))
 
-        # Add plots if available
         plots = candidate.get("plots", {})
 
         if plots.get("phase_fold_png") and Path(plots["phase_fold_png"]).exists():
@@ -203,11 +193,9 @@ def generate_pdf_report(
             except Exception as e:
                 logger.warning(f"Could not add phase fold plot: {e}")
 
-        # Page break between candidates
         if i < min(5, len(candidates)):
             story.append(PageBreak())
 
-    # Build PDF
     doc.build(story)
 
     logger.info(f"Generated PDF report: {output_path}")
@@ -243,15 +231,12 @@ def generate_comparison_report(
     story = []
     styles = getSampleStyleSheet()
 
-    # Title
     story.append(Paragraph("Method Comparison Report", styles["Title"]))
     story.append(Spacer(1, 0.3 * inch))
 
-    # Candidate info
     story.append(Paragraph(f"Candidate: {candidate_id}", styles["Heading2"]))
     story.append(Spacer(1, 0.2 * inch))
 
-    # Comparison table
     comparison_data = [
         ["Metric", "Baseline", "Resonant", "Improvement"],
         [
@@ -297,7 +282,6 @@ def generate_comparison_report(
 
     story.append(comparison_table)
 
-    # Build PDF
     doc.build(story)
 
     logger.info(f"Generated comparison report: {output_path}")

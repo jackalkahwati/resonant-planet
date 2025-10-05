@@ -1,6 +1,4 @@
-/**
- * React hook for running detection jobs with the backend
- */
+
 import { useState, useCallback } from "react";
 import api, { formatCandidate, type RunParams, type JobStatus } from "@/lib/api";
 import { toast } from "sonner";
@@ -35,34 +33,34 @@ export function useDetection(): UseDetectionResult {
 
       toast.info("Starting detection on backend...");
 
-      // Start job
+      
       const { job_id } = await api.startRun(params);
       setJobId(job_id);
 
       toast.success(`Job started: ${job_id.substring(0, 8)}...`);
 
-      // Poll for completion
+      
       const finalStatus = await api.pollStatus(
         job_id,
         (status: JobStatus) => {
           setProgress(status.progress);
           setStage(status.stage || "Processing");
 
-          // Show toast on stage changes
+          
           if (status.stage && status.stage !== stage) {
             toast.info(`${status.stage}: ${status.message || ""}`);
           }
         },
-        1000, // Poll every second
-        300000 // 5 minute timeout
+        1000, 
+        300000 
       );
 
-      // Handle completion
+      
       if (finalStatus.status === "completed") {
-        // Fetch results
+        
         const resultsData = await api.getResults(job_id);
 
-        // Convert backend candidates to frontend format
+        
         const formattedCandidates = resultsData.candidates.map(formatCandidate);
 
         setResults(formattedCandidates);

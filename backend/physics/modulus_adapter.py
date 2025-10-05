@@ -16,9 +16,6 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-# ============================================================================
-# Type definitions
-# ============================================================================
 
 
 class TransitFit(TypedDict):
@@ -47,9 +44,6 @@ class PhysicsChecks(TypedDict):
     stellar_density_consistent: bool
 
 
-# ============================================================================
-# Backend selection
-# ============================================================================
 
 
 def _get_modulus_backend():
@@ -73,7 +67,6 @@ def _get_modulus_backend():
         except ImportError as e:
             logger.warning(f"Failed to import Modulus API adapter: {e}")
             logger.info("Falling back to local backend")
-            # Try local instead
             use_local = True
 
     if use_local:
@@ -132,13 +125,9 @@ def _get_mock_backend():
     return MockBackend()
 
 
-# Global backend instance
 _backend = _get_modulus_backend()
 
 
-# ============================================================================
-# Public API
-# ============================================================================
 
 
 def fit_transit(
@@ -170,17 +159,14 @@ def fit_transit(
     - Automatically estimates uncertainties if not provided
     - Returns success=False if fit fails or is unphysical
     """
-    # Ensure arrays are numpy
     time = np.asarray(time, dtype=np.float64)
     flux = np.asarray(flux, dtype=np.float64)
     if flux_err is not None:
         flux_err = np.asarray(flux_err, dtype=np.float64)
 
-    # Call backend implementation
     if hasattr(_backend, "fit_transit"):
         result = _backend.fit_transit(time, flux, flux_err)
     else:
-        # Use mock if backend doesn't have the function
         result = _backend.fit_transit_mock(time, flux, flux_err)
 
     return TransitFit(**result)
@@ -221,11 +207,9 @@ def run_checks(time: np.ndarray, flux: np.ndarray, period_days: float, t0_bjd: f
     time = np.asarray(time, dtype=np.float64)
     flux = np.asarray(flux, dtype=np.float64)
 
-    # Call backend implementation
     if hasattr(_backend, "run_checks"):
         result = _backend.run_checks(time, flux, period_days, t0_bjd)
     else:
-        # Use mock if backend doesn't have the function
         result = _backend.run_checks_mock(time, flux, period_days, t0_bjd)
 
     return PhysicsChecks(**result)

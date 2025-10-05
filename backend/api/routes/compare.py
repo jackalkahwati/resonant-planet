@@ -21,8 +21,6 @@ async def compare_methods(request: ComparisonRequest):
     comparisons = []
 
     for candidate_id in request.candidate_ids:
-        # Mock comparison data
-        # In production, actually run both methods
 
         baseline = MethodMetrics(
             method_name="baseline",
