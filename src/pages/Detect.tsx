@@ -58,12 +58,22 @@ const Detect = () => {
 
     setIsProcessing(true);
     setShowComparison(false);
-    toast.info(`Fetching ${selectedMission.toUpperCase()} data for ${targetId}...`);
+    setResults([]); // Clear previous results
+    toast.info(`Fetching ${selectedMission.toUpperCase()} data for ${targetId} from NASA...`);
 
     try {
-      // Start the detection run
+      // Step 1: Fetch NASA data
+      const fetchResponse = await api.fetchNASAData({
+        target_id: targetId,
+        mission: selectedMission
+      });
+
+      toast.success(`Downloaded ${fetchResponse.num_points} data points!`);
+      toast.info("Starting exoplanet detection analysis...");
+
+      // Step 2: Run detection on the fetched data
       const runResponse = await api.startRun({
-        dataset_id: `${selectedMission}_${targetId}`,
+        dataset_id: fetchResponse.dataset_id,
         min_period_days: preprocessPreset === "sensitive" ? 0.5 : 1.0,
         max_period_days: preprocessPreset === "fast" ? 20 : 50,
         min_snr: preprocessPreset === "sensitive" ? 5.0 : 7.0,
@@ -71,17 +81,16 @@ const Detect = () => {
       });
 
       const jobId = runResponse.job_id;
-      toast.info("Processing light curve data...");
 
-      // Poll for completion
+      // Step 3: Poll for completion
       const finalStatus = await api.pollStatus(jobId, (status) => {
-        if (status.stage) {
-          toast.info(`${status.stage}...`);
+        if (status.message) {
+          toast.info(status.message);
         }
       });
 
       if (finalStatus.status === "completed") {
-        // Get results
+        // Step 4: Get results
         const resultsData = await api.getResults(jobId);
         
         // Convert backend results to frontend format
@@ -111,14 +120,26 @@ const Detect = () => {
         setResults(formattedResults);
         setIsProcessing(false);
         
-        toast.success(`Analysis complete! Found ${formattedResults.length} candidate${formattedResults.length !== 1 ? 's' : ''}.`);
+        if (formattedResults.length > 0) {
+          toast.success(`✅ Analysis complete! Found ${formattedResults.length} candidate${formattedResults.length !== 1 ? 's' : ''}.`);
+        } else {
+          toast.info("Analysis complete. No transits detected with current sensitivity settings. Try 'High Sensitivity' preset.");
+        }
       } else {
         throw new Error(finalStatus.message || "Detection failed");
       }
     } catch (error: any) {
       console.error("Detection error:", error);
       setIsProcessing(false);
-      toast.error(error.message || "Failed to run detection. Please try again.");
+      
+      // Better error messages
+      if (error.status === 503) {
+        toast.error("Backend dependencies missing. Please contact support.");
+      } else if (error.details?.detail) {
+        toast.error(`Error: ${error.details.detail}`);
+      } else {
+        toast.error(error.message || "Failed to run detection. Please check target ID and try again.");
+      }
     }
   };
 

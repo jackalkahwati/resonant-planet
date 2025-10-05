@@ -169,6 +169,24 @@ export const api = {
     return handleResponse(response);
   },
 
+  // ========== NASA Data ==========
+
+  /**
+   * Fetch light curve from NASA archives
+   */
+  async fetchNASAData(params: {
+    target_id: string;
+    mission: string;
+    quarter?: number;
+  }): Promise<{ dataset_id: string; message: string; num_points: number }> {
+    const response = await fetch(`${API_BASE_URL}/api/nasa/fetch`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    });
+    return handleResponse(response);
+  },
+
   // ========== Detection ==========
 
   /**
