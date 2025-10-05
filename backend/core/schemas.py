@@ -105,13 +105,15 @@ class CandidatePlotUrls(BaseModel):
 class Candidate(BaseModel):
     """Exoplanet candidate with all properties."""
     candidate_id: str
-    period: float
-    t0: float
-    depth: float
-    duration: float
+    probability: float
+    period_days: float
+    t0_bjd: float
+    depth_ppm: float
+    duration_hours: float
     snr: float
-    flags: CandidateFlags
-    plots: Optional[CandidatePlotUrls] = None
+    rl_action: str
+    flags: dict  # Physics check flags
+    plots: dict  # Plot URLs
     fit: Optional[TransitFit] = None
     physics: Optional[PhysicsChecks] = None
     biosignature: Optional[BiosignatureResult] = None  # NEW!
@@ -209,9 +211,12 @@ class ConfirmedPlanet(BaseModel):
 
 class ResultsResponse(BaseModel):
     """Response with detection results."""
-    candidates: List[Candidate]
     job_id: str
-    message: str
+    candidates: List[Candidate]
+    total_candidates: int
+    accepted_count: int
+    rejected_count: int
+    human_review_count: int
 
 
 class DatasetInfo(BaseModel):

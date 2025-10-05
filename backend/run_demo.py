@@ -63,14 +63,14 @@ def main():
     dataset_id = datasets[0]["dataset_id"]
     print(f"3. Running detection on dataset: {dataset_id}...")
 
-    # Start run
+    # Start run (use lower SNR threshold for demo data which spans only 2 days)
     response = requests.post(
         f"{API_URL}/api/run",
         json={
             "dataset_id": dataset_id,
             "min_period_days": 0.5,
-            "max_period_days": 10.0,
-            "min_snr": 7.0,
+            "max_period_days": 3.0,  # Demo data spans only 2 days
+            "min_snr": 3.0,  # Lower threshold for short demo data
             "max_candidates": 5,
         },
     )
@@ -86,21 +86,25 @@ def main():
 
     # Monitor progress
     print("4. Monitoring progress...")
-    last_stage = None
+    last_step = None
 
     while True:
         response = requests.get(f"{API_URL}/api/status/{job_id}")
         status = response.json()
 
-        if status["stage"] != last_stage:
-            print(f"   [{status['progress']:5.1f}%] {status['stage']}: {status['message']}")
-            last_stage = status["stage"]
+        current_step = status.get("current_step", "processing")
+        progress = status.get("progress_pct", 0) or 0
+
+        if current_step != last_step and current_step:
+            print(f"   [{progress:5.1f}%] {current_step}")
+            last_step = current_step
 
         if status["status"] == "completed":
             print("   ✓ Job completed!")
             break
         elif status["status"] == "failed":
-            print(f"   ❌ Job failed: {status['message']}")
+            error_msg = status.get("error") or "Unknown error"
+            print(f"   ❌ Job failed: {error_msg}")
             return
 
         time.sleep(1)
@@ -110,7 +114,18 @@ def main():
     # Get results
     print("5. Retrieving results...")
     response = requests.get(f"{API_URL}/api/results/{job_id}")
-    results = response.json()
+    
+    if response.status_code != 200:
+        print(f"   ⚠️  Failed to retrieve results: {response.status_code}")
+        print(f"   Response: {response.text}")
+        return
+    
+    try:
+        results = response.json()
+    except Exception as e:
+        print(f"   ⚠️  Failed to parse results: {e}")
+        print(f"   Response text: {response.text}")
+        return
 
     print(f"   Total candidates: {results['total_candidates']}")
     print(f"   - Accepted: {results['accepted_count']}")
