@@ -17,14 +17,11 @@ logger = logging.getLogger(__name__)
 class PolicyConfig:
     """Configuration for RL policy."""
 
-    # Probability thresholds
     accept_threshold: float = 0.9
     reject_threshold: float = 0.3
 
-    # False alarm rate target
     target_far: float = 0.01
 
-    # Feature weights (for weighted scoring)
     weight_probability: float = 1.0
     weight_snr: float = 0.3
     weight_physics_checks: float = 0.2
@@ -73,27 +70,20 @@ class RLPolicy:
         str
             Action: "accept", "reject", or "human_review"
         """
-        # Compute composite score
         score = self._compute_score(probability, snr, physics_flags)
 
-        # Decision logic
         if score >= self.config.accept_threshold:
-            # High confidence - accept
             if self._passes_physics_checks(physics_flags):
                 action = "accept"
             else:
-                # Failed physics - send to human
                 action = "human_review"
 
         elif score <= self.config.reject_threshold:
-            # Low confidence - reject
             action = "reject"
 
         else:
-            # Uncertain - send to human review
             action = "human_review"
 
-        # Track action
         self.action_counts[action] += 1
 
         return action
@@ -118,18 +108,14 @@ class RLPolicy:
         float
             Composite score (0-1)
         """
-        # Weighted combination
         w_prob = self.config.weight_probability
         w_snr = self.config.weight_snr
         w_physics = self.config.weight_physics_checks
 
-        # Normalize SNR to 0-1 (assume SNR in [5, 20])
         snr_norm = np.clip((snr - 5.0) / 15.0, 0.0, 1.0)
 
-        # Physics checks score (fraction passing)
         physics_score = sum(physics_flags.values()) / len(physics_flags)
 
-        # Weighted average
         total_weight = w_prob + w_snr + w_physics
         score = (w_prob * probability + w_snr * snr_norm + w_physics * physics_score) / total_weight
 
@@ -149,7 +135,6 @@ class RLPolicy:
         bool
             True if all critical checks pass
         """
-        # All flags should be True for acceptance
         critical_checks = ["odd_even_ok", "secondary_low", "density_consistent"]
 
         for check in critical_checks:
@@ -170,14 +155,12 @@ class RLPolicy:
         target_far = self.config.target_far
 
         if false_alarm_rate > target_far:
-            # Too many false alarms - raise acceptance threshold
             self.config.accept_threshold = min(0.99, self.config.accept_threshold + 0.05)
             logger.info(
                 f"FAR too high ({false_alarm_rate:.3f}), raising threshold to {self.config.accept_threshold:.2f}"
             )
 
         elif false_alarm_rate < target_far * 0.5:
-            # Very few false alarms - can lower threshold slightly
             self.config.accept_threshold = max(0.7, self.config.accept_threshold - 0.02)
             logger.info(
                 f"FAR low ({false_alarm_rate:.3f}), lowering threshold to {self.config.accept_threshold:.2f}"
@@ -253,7 +236,6 @@ class RLPolicy:
         config = PolicyConfig(**data["config"])
         policy = cls(config)
 
-        # Restore stats if present
         if "stats" in data and "action_counts" in data["stats"]:
             policy.action_counts = data["stats"]["action_counts"]
 
@@ -262,7 +244,6 @@ class RLPolicy:
         return policy
 
 
-# Global policy instance
 _policy_instance: Optional[RLPolicy] = None
 
 

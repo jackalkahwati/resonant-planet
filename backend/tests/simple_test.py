@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Simple test without pandas dependency.
 """
@@ -13,12 +12,10 @@ print("Resonant Worlds Explorer - Simple Pipeline Test")
 print("=" * 70)
 print()
 
-# Load demo data manually
 print("1. Loading demo data...")
 try:
     demo_file = Path("assets/demos/kepler_tp.csv")
     
-    # Read CSV manually to avoid pandas dependency
     data = np.loadtxt(demo_file, delimiter=',', skiprows=1)
     time = data[:, 0]
     flux = data[:, 1]
@@ -33,7 +30,6 @@ except Exception as e:
 
 print()
 
-# Test Modulus adapter
 print("2. Testing Modulus adapter...")
 try:
     from physics import fit_transit, run_checks, get_backend_info
@@ -50,7 +46,6 @@ except Exception as e:
 
 print()
 
-# Test transit fit
 print("3. Testing transit fitting...")
 try:
     result = fit_transit(time, flux, flux_err)
@@ -68,7 +63,6 @@ except Exception as e:
 
 print()
 
-# Test validation checks
 print("4. Testing validation checks...")
 try:
     checks = run_checks(time, flux, period_days=1.26, t0_bjd=0.5)
@@ -85,7 +79,6 @@ except Exception as e:
 
 print()
 
-# Test API (if running)
 print("5. Checking if backend API is running...")
 try:
     import urllib.request

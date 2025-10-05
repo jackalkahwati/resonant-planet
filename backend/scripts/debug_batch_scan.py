@@ -30,7 +30,6 @@ def run_debug_scan(
         print(f"[{idx}/{len(csv_files)}] Processing: {csv_file.name}")
         
         try:
-            # Load snapshot
             snapshot = load_atmospheric_snapshot(csv_file)
             print(f"   ✓ Loaded snapshot for {snapshot.planet_name}")
             print(f"     CO2: {snapshot.gas_mixing_ratios_ppm.get('CO2', 'N/A')} ppm")
@@ -38,12 +37,10 @@ def run_debug_scan(
             print(f"     Eq Temp: {snapshot.equilibrium_temperature_k} K")
             print(f"     GH Temp: {snapshot.greenhouse_temperature_k} K")
             
-            # Validate data
             if "CO2" in snapshot.gas_mixing_ratios_ppm and "CH4" in snapshot.gas_mixing_ratios_ppm:
                 co2 = snapshot.gas_mixing_ratios_ppm["CO2"]
                 ch4 = snapshot.gas_mixing_ratios_ppm["CH4"]
                 
-                # Check for invalid values
                 if co2 <= 0 or ch4 <= 0:
                     print(f"   ⚠️  Invalid gas ratios (non-positive): CO2={co2}, CH4={ch4}")
                     errors.append({
@@ -53,7 +50,7 @@ def run_debug_scan(
                     })
                     continue
                 
-                if co2 != co2 or ch4 != ch4:  # NaN check
+                if co2 != co2 or ch4 != ch4:
                     print(f"   ⚠️  NaN gas ratios: CO2={co2}, CH4={ch4}")
                     errors.append({
                         "file": str(csv_file),
@@ -62,7 +59,6 @@ def run_debug_scan(
                     })
                     continue
             
-            # Try Modulus computation with retries
             computations = []
             last_error = None
             
@@ -87,7 +83,6 @@ def run_debug_scan(
                         })
                         computations = []
 
-            # Build result entry
             entry = {
                 "planet": snapshot.planet_name,
                 "file": str(csv_file.relative_to(data_dir)),
@@ -120,7 +115,6 @@ def run_debug_scan(
             })
             print()
 
-    # Print summary
     print("=" * 80)
     print(f"📊 SUMMARY")
     print("=" * 80)

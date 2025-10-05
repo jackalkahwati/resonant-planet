@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Run exoplanet detection on REAL NASA data!
 """
@@ -13,7 +12,6 @@ print("🔭 EXOPLANET DETECTION - REAL NASA DATA")
 print("=" * 80)
 print()
 
-# Step 1: Check API
 print("1. Checking API status...")
 response = requests.get(f"{API_BASE}/health")
 if response.status_code == 200:
@@ -22,7 +20,6 @@ else:
     print(f"   ❌ API error: {response.status_code}")
     exit(1)
 
-# Step 2: Check NASA data availability
 print("\n2. Checking NASA data access...")
 response = requests.get(f"{API_BASE}/nasa/available")
 data = response.json()
@@ -33,14 +30,12 @@ if data['available']:
 else:
     print(f"   ⚠️  {data['message']}")
 
-# Step 3: List confirmed planets
 print("\n3. Available confirmed planets:")
 response = requests.get(f"{API_BASE}/nasa/confirmed-planets")
 planets = response.json()['planets']
 for i, p in enumerate(planets[:6], 1):
     print(f"   {i}. {p['name']:15s} - Period: {p.get('period', 'N/A')}d, {p.get('note', '')}")
 
-# Step 4: Fetch Kepler-90i (8-planet system)
 print("\n4. Fetching Kepler-90i from NASA archives...")
 print("   (This is a CONFIRMED exoplanet - we should detect it!)")
 response = requests.post(
@@ -63,14 +58,13 @@ else:
     print(f"   {response.text}")
     exit(1)
 
-# Step 5: Run detection
 print("\n5. Running exoplanet detection...")
 print("   (BLS search + Transit fitting + Validation)")
 response = requests.post(
     f"{API_BASE}/api/run",
     json={
         "dataset_id": dataset_id,
-        "min_period": 10.0,  # Kepler-90i has 14.45d period
+        "min_period": 10.0,
         "max_period": 20.0,
         "snr_threshold": 5.0
     }
@@ -84,9 +78,8 @@ else:
     print(f"   ❌ Failed to start job: {response.status_code}")
     exit(1)
 
-# Step 6: Poll for results
 print("\n6. Waiting for detection to complete...")
-max_wait = 120  # 2 minutes
+max_wait = 120
 start_time = time.time()
 
 while time.time() - start_time < max_wait:
@@ -108,7 +101,6 @@ while time.time() - start_time < max_wait:
     
     time.sleep(2)
 
-# Step 7: Get results
 print("\n7. Retrieving results...")
 response = requests.get(f"{API_BASE}/api/results/{job_id}")
 
@@ -136,7 +128,6 @@ if response.status_code == 200:
             print(f"    Shape score:      {flags.get('v_vs_u_shape_score', 0):.2f}")
             print(f"    Density OK:       {flags.get('stellar_density_consistent', False)}")
     
-    # Compare to known values
     print("\n" + "=" * 80)
     print("📊 COMPARISON TO PUBLISHED VALUES")
     print("=" * 80)

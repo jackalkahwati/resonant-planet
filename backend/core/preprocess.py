@@ -28,7 +28,6 @@ def normalize_flux(flux: np.ndarray, method: str = "median") -> np.ndarray:
         baseline = np.median(flux)
         return flux / baseline
     elif method == "polyfit":
-        # Polynomial detrending
         x = np.arange(len(flux))
         coeffs = np.polyfit(x, flux, deg=3)
         trend = np.polyval(coeffs, x)
@@ -60,7 +59,6 @@ def remove_outliers(
     median = np.median(flux)
     std = np.std(flux)
 
-    # Identify outliers
     outlier_mask = np.abs(flux - median) < sigma_clip * std
 
     return time[outlier_mask], flux[outlier_mask]
@@ -88,22 +86,18 @@ def detrend_light_curve(
     np.ndarray
         Detrended flux
     """
-    # Convert window to number of points
     if len(time) < 10:
         return flux
 
-    median_dt = np.median(np.diff(time)) * 24.0  # hours
+    median_dt = np.median(np.diff(time)) * 24.0
     window_points = int(window_hours / median_dt)
     window_points = max(5, min(window_points, len(flux) // 3))
 
-    # Ensure odd window
     if window_points % 2 == 0:
         window_points += 1
 
-    # Median filter for baseline
     baseline = medfilt(flux, kernel_size=window_points)
 
-    # Detrend
     detrended = flux / baseline
 
     return detrended
@@ -129,10 +123,9 @@ def handle_gaps(
     Tuple[np.ndarray, np.ndarray, np.ndarray]
         (time, flux, gap_mask) where gap_mask indicates gap boundaries
     """
-    dt = np.diff(time) * 24.0  # hours
+    dt = np.diff(time) * 24.0
     gaps = dt > max_gap_hours
 
-    # Create gap mask
     gap_mask = np.zeros(len(time), dtype=bool)
     gap_mask[:-1] = gaps
 
@@ -162,9 +155,8 @@ def fold_light_curve(
         (phase, flux) where phase is in [-0.5, 0.5]
     """
     phase = ((time - t0 + 0.5 * period) % period) - 0.5 * period
-    phase = phase / period  # Normalize to [-0.5, 0.5]
+    phase = phase / period
 
-    # Sort by phase
     sort_idx = np.argsort(phase)
 
     return phase[sort_idx], flux[sort_idx]
@@ -192,14 +184,11 @@ def bin_light_curve(
     """
     bin_size_days = bin_size_minutes / (24.0 * 60.0)
 
-    # Create bins
     time_min, time_max = time.min(), time.max()
     bins = np.arange(time_min, time_max + bin_size_days, bin_size_days)
 
-    # Compute bin indices
     bin_indices = np.digitize(time, bins)
 
-    # Compute binned values
     binned_time = []
     binned_flux = []
     binned_err = []
@@ -232,7 +221,6 @@ def estimate_noise(flux: np.ndarray, method: str = "mad") -> float:
     """
     if method == "mad":
         mad = np.median(np.abs(flux - np.median(flux)))
-        # Convert MAD to equivalent std
         return 1.4826 * mad
     elif method == "std":
         return np.std(flux)
@@ -240,7 +228,6 @@ def estimate_noise(flux: np.ndarray, method: str = "mad") -> float:
         raise ValueError(f"Unknown noise estimation method: {method}")
 
 
-# Cache for preprocessing results
 _preprocess_cache = {}
 
 def preprocess_pipeline(
@@ -277,26 +264,20 @@ def preprocess_pipeline(
     Tuple[np.ndarray, np.ndarray, np.ndarray]
         (time, flux, flux_err) preprocessed arrays
     """
-    # Check cache
     cache_key = f"{hash_array(time)}_{hash_array(flux)}_{sigma_clip}_{detrend_window_hours}"
     if cache_key in _preprocess_cache:
         return _preprocess_cache[cache_key]
     
-    # Normalize
     flux_norm = normalize_flux(flux, method="median")
 
-    # Remove outliers
     time_clean, flux_clean = remove_outliers(time, flux_norm, sigma_clip=sigma_clip)
 
-    # Detrend
     flux_detrended = detrend_light_curve(time_clean, flux_clean, window_hours=detrend_window_hours)
 
-    # Estimate uncertainties if not provided
     if flux_err is None:
         noise = estimate_noise(flux_detrended, method="mad")
         flux_err_clean = np.ones_like(flux_detrended) * noise
     else:
-        # Interpolate flux_err to match cleaned time
         if len(flux_err) == len(flux):
             interp_func = interp1d(
                 time, flux_err, kind="nearest", fill_value="extrapolate", bounds_error=False
@@ -306,7 +287,6 @@ def preprocess_pipeline(
             noise = estimate_noise(flux_detrended, method="mad")
             flux_err_clean = np.ones_like(flux_detrended) * noise
 
-    # Store in cache (limit cache size)
     if len(_preprocess_cache) > 100:
         _preprocess_cache.clear()
     _preprocess_cache[cache_key] = (time_clean, flux_detrended, flux_err_clean)

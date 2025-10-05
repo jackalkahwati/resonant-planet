@@ -33,7 +33,7 @@ class MolecularFeature:
 @dataclass
 class BiosignatureResult:
     """Result of biosignature analysis."""
-    biosignature_score: float  # 0-1 probability of life
+    biosignature_score: float
     detected_molecules: List[str]
     disequilibrium_score: float
     false_positive_probability: float
@@ -76,7 +76,6 @@ class ModulusChemistryAnalyzer:
         dict
             Analysis including equilibrium state, timescales, disequilibrium score
         """
-        # Format molecules for Modulus
         mol_str = "\n".join([f"   - {mol}: {conc*100:.6g}%" for mol, conc in molecules.items()])
         
         problem = f"""
@@ -96,7 +95,6 @@ class ModulusChemistryAnalyzer:
         Focus on reactions like: CH4 + 2O2 → CO2 + 2H2O
         """
         
-        # Legacy path retained for compatibility but compute_gas_disequilibrium is preferred.
         logger.warning("check_chemical_equilibrium is deprecated; use ModulusBiosignatureWorkflow instead")
         return {'success': False, 'is_disequilibrium': None}
     
@@ -158,7 +156,7 @@ class ModulusChemistryAnalyzer:
                     'success': True,
                     'explanation': result.get('explanation', ''),
                     'expected_depth_ppm': self._parse_depth(result),
-                    'detectable': True  # Parse from explanation
+                    'detectable': True
                 }
             else:
                 return {'success': False}
@@ -230,7 +228,7 @@ class ModulusChemistryAnalyzer:
                     'success': True,
                     'explanation': result.get('explanation', ''),
                     'abiotic_likely': self._parse_abiotic_likelihood(result),
-                    'biological_probability': 0.5  # Parse from explanation
+                    'biological_probability': 0.5
                 }
             else:
                 return {'success': False}
@@ -242,7 +240,6 @@ class ModulusChemistryAnalyzer:
     def _parse_disequilibrium(self, result: Dict) -> bool:
         """Parse Modulus result to determine if disequilibrium exists."""
         explanation = result.get('explanation', '').lower()
-        # Look for keywords indicating disequilibrium
         if any(word in explanation for word in ['disequilibrium', 'not equilibrium', 'unstable']):
             return True
         if any(word in explanation for word in ['equilibrium', 'stable', 'balanced']):
@@ -251,7 +248,6 @@ class ModulusChemistryAnalyzer:
     
     def _parse_depth(self, result: Dict) -> Optional[float]:
         """Parse expected absorption depth from Modulus result."""
-        # Try to extract ppm value from numerical answer or explanation
         if result.get('numerical_answer'):
             try:
                 return float(result['numerical_answer'])
@@ -278,31 +274,24 @@ class BiosignatureDetector:
         self.chemistry = ModulusChemistryAnalyzer(modulus_api_url)
         self.modulus_workflow = ModulusBiosignatureWorkflow(base_url=modulus_api_url)
         
-        # Known biosignature molecules and their significance
         self.biosignature_molecules = {
-            # Classic strong biosignatures
             'O2': {'weight': 0.8, 'primary_wavelength_um': 0.76, 'biosignature_strength': 'strong'},
             'O3': {'weight': 0.7, 'primary_wavelength_um': 9.6, 'biosignature_strength': 'strong'},
             'CH4': {'weight': 0.6, 'primary_wavelength_um': 3.3, 'biosignature_strength': 'strong'},
             
-            # Moderate biosignatures
             'N2O': {'weight': 0.5, 'primary_wavelength_um': 7.8, 'biosignature_strength': 'moderate'},
             'NH3': {'weight': 0.5, 'primary_wavelength_um': 10.5, 'biosignature_strength': 'moderate'},
             
-            # Controversial/emerging biosignatures
             'PH3': {'weight': 0.4, 'primary_wavelength_um': 4.3, 'biosignature_strength': 'controversial'},
             'DMS': {'weight': 0.9, 'primary_wavelength_um': 3.4, 'biosignature_strength': 'controversial'},
             'CH3Cl': {'weight': 0.6, 'primary_wavelength_um': 13.7, 'biosignature_strength': 'controversial'},
             'CH3Br': {'weight': 0.6, 'primary_wavelength_um': 7.1, 'biosignature_strength': 'controversial'},
             
-            # Secondary indicators
             'SO2': {'weight': 0.3, 'primary_wavelength_um': 7.3, 'biosignature_strength': 'weak'},
             'NO2': {'weight': 0.3, 'primary_wavelength_um': 6.2, 'biosignature_strength': 'weak'},
         }
         
-        # Extended disequilibrium pairs (beyond classic O2+CH4)
         self.disequilibrium_pairs = {
-            # Classic pairs
             ('O2', 'CH4'): {
                 'score': 0.85, 
                 'explanation': 'Classic Earth-like biosignature - O2+CH4 react rapidly without replenishment',
@@ -316,7 +305,6 @@ class BiosignatureDetector:
                 'precedent': 'Earth stratosphere'
             },
             
-            # Agricultural/microbial biosignatures
             ('N2O', 'CH4'): {
                 'score': 0.75, 
                 'explanation': 'Agricultural/microbial biosignature - both produced by microbial metabolism',
@@ -330,7 +318,6 @@ class BiosignatureDetector:
                 'precedent': 'Archean Earth (3 Gya)'
             },
             
-            # Marine/aquatic biosignatures
             ('DMS', 'O2'): {
                 'score': 0.80, 
                 'explanation': 'Marine biosphere indicator - DMS from phytoplankton',
@@ -344,7 +331,6 @@ class BiosignatureDetector:
                 'precedent': 'Ocean ecosystems'
             },
             
-            # Controversial pairs
             ('PH3', 'O2'): {
                 'score': 0.70, 
                 'explanation': 'Controversial but strong disequilibrium - PH3 oxidizes rapidly in O2',
@@ -358,7 +344,6 @@ class BiosignatureDetector:
                 'precedent': 'Speculative'
             },
             
-            # Biological halogens
             ('CH3Cl', 'CH3Br'): {
                 'score': 0.60, 
                 'explanation': 'Biological halogen production - marine algae and fungi',
@@ -372,7 +357,6 @@ class BiosignatureDetector:
                 'precedent': 'Forest ecosystems'
             },
             
-            # Industrial/pollution biosignatures (technologically advanced life)
             ('NO2', 'SO2'): {
                 'score': 0.55,
                 'explanation': 'Industrial pollution signature - combustion byproducts',
@@ -406,7 +390,6 @@ class BiosignatureDetector:
         """
         logger.info("Starting biosignature analysis...")
         
-        # Step 1: Identify molecules from spectrum
         detected_molecules = self._identify_molecules(wavelengths_um, absorption_depths_ppm)
         
         if not detected_molecules:
@@ -421,14 +404,11 @@ class BiosignatureDetector:
         
         logger.info(f"Detected molecules: {[m.molecule for m in detected_molecules]}")
         
-        # Step 2: Check for chemical disequilibrium using Modulus
         molecule_dict = {m.molecule: 0.01 for m in detected_molecules}
         
-        # Check for ALL known disequilibrium pairs (extended detection)
         molecule_names = [m.molecule for m in detected_molecules]
         
-        # Find the strongest disequilibrium pair
-        max_disequilibrium_score = 0.3  # Default for no pairs
+        max_disequilibrium_score = 0.3
         detected_pair = None
         pair_explanation = ""
         
@@ -451,7 +431,6 @@ class BiosignatureDetector:
         else:
             logger.info("No known disequilibrium pairs detected")
 
-        # Try to get exact Modulus calculation for refinement
         workflow_results = []
         try:
             gas_ppm = {
@@ -469,11 +448,9 @@ class BiosignatureDetector:
 
             workflow_results = self.modulus_workflow.run_composite_analysis(snapshot)
 
-            # If Modulus provides better calculation, use it
             log_ratio = next((c for c in workflow_results if c.metric_name == "log10_CO2_CH4"), None)
             if log_ratio and not math.isnan(log_ratio.value):
                 modulus_score = 0.9 if log_ratio.value >= 2.0 else (0.6 if log_ratio.value >= 1.0 else 0.3)
-                # Take maximum of pair-based and Modulus calculation
                 disequilibrium_score = max(disequilibrium_score, modulus_score)
                 logger.info(f"Modulus refinement: log10_CO2_CH4 = {log_ratio.value:.2f}")
 
@@ -484,21 +461,19 @@ class BiosignatureDetector:
         except Exception as exc:
             logger.warning("Modulus biosignature workflow failed: %s", exc)
         
-        # Create equilibrium result summary
         equilibrium_result = {
             'is_disequilibrium': disequilibrium_score > 0.5,
             'score': disequilibrium_score,
             'explanation': f"Disequilibrium score: {disequilibrium_score:.2f}"
         }
         
-        # Step 3: Analyze false positives for each molecule
         false_positive_scores = []
         
         for mol_feature in detected_molecules:
             if mol_feature.molecule in ['O2', 'CH4', 'O3']:
                 fp_result = self.chemistry.analyze_false_positives(
                     mol_feature.molecule,
-                    0.01,  # Rough concentration
+                    0.01,
                     stellar_uv_flux=planet_params.get('stellar_uv_flux', 1.0),
                     planet_age_gyr=planet_params.get('age_gyr', 4.5)
                 )
@@ -509,7 +484,6 @@ class BiosignatureDetector:
         
         false_positive_prob = np.mean(false_positive_scores) if false_positive_scores else 0.5
         
-        # Step 4: Calculate overall biosignature score (with temperature filtering)
         temperature_k = planet_params.get('temperature_k', 288.0)
         biosignature_score = self._calculate_biosignature_score(
             detected_molecules,
@@ -518,10 +492,8 @@ class BiosignatureDetector:
             temperature_k
         )
         
-        # Step 5: Determine confidence level
         confidence = self._determine_confidence(biosignature_score, detected_molecules)
         
-        # Step 6: Generate explanation
         explanation = self._generate_explanation(
             detected_molecules,
             equilibrium_result,
@@ -548,36 +520,27 @@ class BiosignatureDetector:
         """Identify molecules from absorption features in transmission spectrum."""
         detected = []
         
-        # Convert transmission flux (0-1) to depth if needed
         if np.all(depths <= 1.0) and np.all(depths >= 0.0):
-            # This is transmission flux, convert to absorption depth
-            # Lower transmission = more absorption
             baseline = np.median(depths)
-            absorption_depth = (baseline - depths) * 1e6  # Convert to ppm
+            absorption_depth = (baseline - depths) * 1e6
             logger.info(f"Converted transmission to absorption depth (baseline: {baseline:.3f})")
         else:
-            # Already in ppm
             absorption_depth = depths
         
         for molecule, props in self.biosignature_molecules.items():
             primary_wl = props['primary_wavelength_um']
             
-            # Look for absorption near this wavelength
-            mask = np.abs(wavelengths - primary_wl) < 0.15  # Broader search window
+            mask = np.abs(wavelengths - primary_wl) < 0.15
             
             if np.any(mask):
                 max_depth = float(np.max(absorption_depth[mask]))
                 
-                # Lower thresholds for realistic detection (Earth-like signals are 100-500 ppm)
-                # Strong biosignatures: O2, O3, CH4 at 200+ ppm
-                # Moderate biosignatures: N2O at 150+ ppm  
-                # Controversial: PH3, DMS at 100+ ppm (need careful validation)
                 if props['biosignature_strength'] == 'strong':
-                    threshold = 200  # Lowered from 1000
+                    threshold = 200
                 elif props['biosignature_strength'] == 'moderate':
-                    threshold = 150  # Lowered from 500
-                else:  # controversial
-                    threshold = 100  # Lowered from 1000
+                    threshold = 150
+                else:
+                    threshold = 100
                 
                 if max_depth > threshold:
                     detected.append(MolecularFeature(
@@ -609,37 +572,29 @@ class BiosignatureDetector:
         if not molecules:
             return 0.0
         
-        # Temperature-based habitability penalty
         if temperature_k > 1000:
-            # Hot Jupiter - biosignatures extremely unlikely
-            temperature_factor = 0.05  # Maximum 5% score
+            temperature_factor = 0.05
             logger.info(f"Hot Jupiter penalty applied (T={temperature_k:.0f}K)")
         elif temperature_k > 600:
-            # Very warm - strong penalty
             temperature_factor = 0.3
             logger.info(f"Warm planet penalty applied (T={temperature_k:.0f}K)")
         elif temperature_k > 200:
-            # Habitable zone - no penalty
             temperature_factor = 1.0
         else:
-            # Too cold - moderate penalty
             temperature_factor = 0.5
             logger.info(f"Cold planet penalty applied (T={temperature_k:.0f}K)")
         
-        # Weighted sum of molecule detections
         molecule_score = sum(
             self.biosignature_molecules[m.molecule]['weight'] * m.confidence
             for m in molecules if m.molecule in self.biosignature_molecules
         ) / len(molecules)
         
-        # Combine with disequilibrium and false positive analysis
         base_score = (
             0.4 * molecule_score +
             0.3 * disequilibrium +
             0.3 * (1 - false_positive_prob)
         )
         
-        # Apply temperature penalty
         score = base_score * temperature_factor
         
         return min(1.0, max(0.0, score))
@@ -669,7 +624,6 @@ class BiosignatureDetector:
         explanation = f"Biosignature Analysis (Score: {score:.2f}/1.00)\n\n"
         explanation += f"Planet Temperature: {temperature_k:.0f} K\n"
         
-        # Temperature context
         if temperature_k > 1000:
             explanation += "⚠️  HOT JUPITER - Biosignatures highly unlikely due to extreme temperature\n\n"
         elif temperature_k > 600:

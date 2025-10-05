@@ -1,12 +1,10 @@
-/**
- * API client for Resonant Worlds Explorer backend
- */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-// ============================================================================
-// Types (matching backend schemas)
-// ============================================================================
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http:
+
+
+
+
 
 export interface DatasetInfo {
   dataset_id: string;
@@ -85,9 +83,9 @@ export interface ComparisonResponse {
   improvement_factor: number;
 }
 
-// ============================================================================
-// API Client
-// ============================================================================
+
+
+
 
 class APIError extends Error {
   constructor(
@@ -121,35 +119,27 @@ async function handleResponse<T>(response: Response): Promise<T> {
 }
 
 export const api = {
-  /**
-   * Check backend health
-   */
+  
   async health(): Promise<{ status: string }> {
     const response = await fetch(`${API_BASE_URL}/health`);
     return handleResponse(response);
   },
 
-  /**
-   * Get backend info
-   */
+  
   async getInfo(): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/`);
     return handleResponse(response);
   },
 
-  // ========== Datasets ==========
+  
 
-  /**
-   * List available datasets
-   */
+  
   async listDatasets(): Promise<DatasetInfo[]> {
     const response = await fetch(`${API_BASE_URL}/api/datasets/`);
     return handleResponse(response);
   },
 
-  /**
-   * Upload a light curve CSV file
-   */
+  
   async uploadDataset(file: File): Promise<{ dataset_id: string; message: string }> {
     const formData = new FormData();
     formData.append("file", file);
@@ -161,19 +151,15 @@ export const api = {
     return handleResponse(response);
   },
 
-  /**
-   * Get dataset info
-   */
+  
   async getDataset(datasetId: string): Promise<DatasetInfo> {
     const response = await fetch(`${API_BASE_URL}/api/datasets/${datasetId}`);
     return handleResponse(response);
   },
 
-  // ========== Detection ==========
+  
 
-  /**
-   * Start a detection run
-   */
+  
   async startRun(params: RunParams): Promise<{ job_id: string; status: string }> {
     const response = await fetch(`${API_BASE_URL}/api/run`, {
       method: "POST",
@@ -183,22 +169,18 @@ export const api = {
     return handleResponse(response);
   },
 
-  /**
-   * Get job status
-   */
+  
   async getStatus(jobId: string): Promise<JobStatus> {
     const response = await fetch(`${API_BASE_URL}/api/status/${jobId}`);
     return handleResponse(response);
   },
 
-  /**
-   * Poll job status until completion
-   */
+  
   async pollStatus(
     jobId: string,
     onProgress?: (status: JobStatus) => void,
     interval: number = 1000,
-    timeout: number = 300000 // 5 minutes
+    timeout: number = 300000 
   ): Promise<JobStatus> {
     const startTime = Date.now();
 
@@ -219,19 +201,15 @@ export const api = {
     throw new Error("Job polling timed out");
   },
 
-  /**
-   * Get detection results
-   */
+  
   async getResults(jobId: string): Promise<ResultsResponse> {
     const response = await fetch(`${API_BASE_URL}/api/results/${jobId}`);
     return handleResponse(response);
   },
 
-  // ========== Reports ==========
+  
 
-  /**
-   * Download PDF report
-   */
+  
   async downloadReport(jobId: string): Promise<Blob> {
     const response = await fetch(`${API_BASE_URL}/api/report/${jobId}`);
 
@@ -242,9 +220,7 @@ export const api = {
     return response.blob();
   },
 
-  /**
-   * Download report as file
-   */
+  
   async downloadReportAsFile(jobId: string, filename?: string): Promise<void> {
     const blob = await this.downloadReport(jobId);
     const url = window.URL.createObjectURL(blob);
@@ -257,11 +233,9 @@ export const api = {
     document.body.removeChild(a);
   },
 
-  // ========== Comparison ==========
+  
 
-  /**
-   * Compare methods for candidates
-   */
+  
   async compareMethod(candidateIds: string[]): Promise<ComparisonResponse[]> {
     const response = await fetch(`${API_BASE_URL}/api/compare/`, {
       method: "POST",
@@ -271,9 +245,7 @@ export const api = {
     return handleResponse(response);
   },
 
-  /**
-   * Get plot URL
-   */
+  
   getPlotUrl(plotPath: string): string {
     if (plotPath.startsWith("http")) {
       return plotPath;
@@ -282,21 +254,19 @@ export const api = {
   },
 };
 
-// ============================================================================
-// Utility functions
-// ============================================================================
 
-/**
- * Format candidate for display (convert from backend to frontend format)
- */
+
+
+
+
 export function formatCandidate(backendCandidate: Candidate) {
   return {
     id: backendCandidate.candidate_id,
     name: backendCandidate.candidate_id,
-    mission: "Kepler", // Could be extracted from dataset info
+    mission: "Kepler", 
     probability: backendCandidate.probability,
     period: backendCandidate.period_days,
-    depth: backendCandidate.depth_ppm / 1e6, // Convert ppm to fractional
+    depth: backendCandidate.depth_ppm / 1e6, 
     duration: backendCandidate.duration_hours,
     snr: backendCandidate.snr,
     validations: {
@@ -305,7 +275,7 @@ export function formatCandidate(backendCandidate: Candidate) {
       shape: backendCandidate.flags.shape_u_like,
       centroid: backendCandidate.flags.density_consistent,
     },
-    baselineProbability: 0.7, // Placeholder - would come from comparison API
+    baselineProbability: 0.7, 
     baselineFlags: [] as string[],
     description: `Detected by Resonant Worlds Explorer (${backendCandidate.rl_action})`,
     isConfirmed: backendCandidate.rl_action === "accept",
@@ -314,9 +284,7 @@ export function formatCandidate(backendCandidate: Candidate) {
   };
 }
 
-/**
- * Check if backend is available
- */
+
 export async function checkBackend(): Promise<boolean> {
   try {
     await api.health();

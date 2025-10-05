@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Integration test for biosignature detection pipeline.
 
@@ -16,7 +15,6 @@ import time
 from pathlib import Path
 import numpy as np
 
-# Configuration
 API_BASE = "http://localhost:8080"
 MODULUS_BASE = "https://modulus-865475771210.europe-west1.run.app"
 
@@ -34,7 +32,6 @@ def check_modulus_api():
         if response.status_code == 200:
             print("✅ Modulus API is online!")
             
-            # Get info
             info_response = requests.get(f"{MODULUS_BASE}/v2/models", timeout=5)
             if info_response.status_code == 200:
                 info = info_response.json()
@@ -127,7 +124,6 @@ def test_biosignature_analysis(spectrum_file):
         
         print("-" * 80)
         
-        # Verdict
         score = result['biosignature_score']
         if score > 0.7:
             print("\n🌟 VERDICT: Strong biosignature candidate!")
@@ -160,7 +156,6 @@ def test_molecule_info():
         
         print(f"\n{len(molecules)} biosignature molecules in database:\n")
         
-        # Sort by strength
         strengths = ['high', 'medium', 'low', 'controversial', 'none']
         
         for strength in strengths:
@@ -183,7 +178,6 @@ def run_complete_test():
     print("🧬 BIOSIGNATURE DETECTION SYSTEM TEST")
     print("="*80)
     
-    # Check services
     modulus_ok = check_modulus_api()
     backend_ok = check_backend_api()
     
@@ -194,17 +188,14 @@ def run_complete_test():
     if not modulus_ok:
         print("\n⚠️  Modulus API not available - will use fallback chemistry")
     
-    # List available spectra
     datasets = test_spectrum_listing()
     
     if not datasets:
         print("\n❌ No spectroscopic datasets found - cannot continue")
         return False
     
-    # Get molecule info
     test_molecule_info()
     
-    # Analyze each demo spectrum
     demo_spectra = [
         'earth_like_with_life.csv',
         'mars_like_no_life.csv',
@@ -217,9 +208,8 @@ def run_complete_test():
         result = test_biosignature_analysis(spectrum)
         if result:
             results[spectrum] = result['biosignature_score']
-        time.sleep(1)  # Rate limiting
+        time.sleep(1)
     
-    # Summary
     print_header("📊 SUMMARY OF ALL ANALYSES")
     
     if results:
@@ -230,7 +220,6 @@ def run_complete_test():
         
         print("\n✅ Biosignature detection system is working!")
         
-        # Check if results make sense
         if 'earth_like_with_life.csv' in results and results['earth_like_with_life.csv'] > 0.6:
             print("   ✅ Earth-like spectrum correctly identified")
         

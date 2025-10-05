@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Test NASA Exoplanet Archive Integration
 
@@ -11,7 +10,6 @@ Demonstrates:
 import sys
 from pathlib import Path
 
-# Add backend to path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from core.data_sources import (
@@ -61,7 +59,6 @@ def test_validate_detection():
     print("TEST 2: Validate Detections Against Known Planets")
     print("="*70)
     
-    # Test cases: (target, period, depth_ppm, description)
     test_cases = [
         ('Kepler-90', 14.45, 900, 'Kepler-90i - Should match'),
         ('Kepler-90', 59.74, 700, 'Kepler-90g - Should match'),
@@ -85,7 +82,7 @@ def test_validate_detection():
             
             if result['all_planets']:
                 print(f"   Known planets in system: {len(result['all_planets'])}")
-                for p in result['all_planets'][:3]:  # Show first 3
+                for p in result['all_planets'][:3]:
                     print(f"     - {p['name']}: P={p['period']:.2f}d")
                     
         except Exception as e:

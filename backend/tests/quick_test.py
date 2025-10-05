@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Quick test of the detection pipeline on demo data.
 """
@@ -14,7 +13,6 @@ print("Resonant Worlds Explorer - Quick Test")
 print("=" * 70)
 print()
 
-# Test 1: Load demo data
 print("1. Testing data loading...")
 try:
     demo_file = Path("assets/demos/kepler_tp.csv")
@@ -31,7 +29,6 @@ except Exception as e:
 
 print()
 
-# Test 2: Preprocessing
 print("2. Testing preprocessing...")
 try:
     from core.preprocess import preprocess_pipeline
@@ -52,7 +49,6 @@ except Exception as e:
 
 print()
 
-# Test 3: BLS Search
 print("3. Testing BLS period search...")
 try:
     from core.features_bls import extract_bls_features
@@ -76,7 +72,6 @@ except Exception as e:
 
 print()
 
-# Test 4: Modulus Adapter
 print("4. Testing Modulus adapter...")
 try:
     from physics import fit_transit, run_checks, get_backend_info
@@ -84,7 +79,6 @@ try:
     info = get_backend_info()
     print(f"   ✓ Backend: {info['backend']} (mock: {info['is_mock']})")
     
-    # Test transit fit on first candidate
     if candidates:
         c = candidates[0]
         result = fit_transit(time_clean, flux_clean, flux_err_clean)
@@ -97,7 +91,6 @@ try:
         else:
             print(f"   ⚠ Fit completed but flagged: {result['message']}")
             
-        # Test validation checks
         checks = run_checks(time_clean, flux_clean, c.period, c.t0)
         print(f"   ✓ Validation checks completed")
         print(f"      Odd/even delta: {checks['odd_even_depth_delta_pct']:.1f}%")
@@ -110,7 +103,6 @@ except Exception as e:
 
 print()
 
-# Test 5: API Health Check
 print("5. Testing API availability...")
 try:
     import requests

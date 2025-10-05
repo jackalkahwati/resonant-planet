@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Visual 60-Second Demo - Resonant Worlds Explorer
 Shows the detection pipeline with plots and animations
@@ -49,18 +48,16 @@ def display_plot(image_path, title=""):
         from PIL import Image
         import numpy as np
         
-        # Load and resize image
         img = Image.open(image_path).convert('L')
         img = img.resize((80, 40))
         
-        # Convert to ASCII
         chars = " .:-=+*#%@"
         pixels = np.array(img)
         ascii_art = []
         
-        for row in pixels[::2]:  # Skip every other row for better aspect ratio
+        for row in pixels[::2]:
             line = ""
-            for pixel in row[::2]:  # Skip every other column
+            for pixel in row[::2]:
                 char_idx = int((pixel / 255) * (len(chars) - 1))
                 line += chars[char_idx]
             ascii_art.append(line)
@@ -78,14 +75,12 @@ def create_live_visualization(time_data, flux_data, period, phase_data=None):
     fig.suptitle('Resonant Worlds Explorer - Live Detection', 
                  fontsize=16, fontweight='bold')
     
-    # 1. Raw Light Curve
     axes[0, 0].plot(time_data, flux_data, 'k.', markersize=2, alpha=0.5)
     axes[0, 0].set_title('Raw Light Curve', fontweight='bold')
     axes[0, 0].set_xlabel('Time (days)')
     axes[0, 0].set_ylabel('Normalized Flux')
     axes[0, 0].grid(True, alpha=0.3)
     
-    # 2. Zoomed Transit
     if len(time_data) > 50:
         mid = len(time_data) // 2
         window = 25
@@ -97,7 +92,6 @@ def create_live_visualization(time_data, flux_data, period, phase_data=None):
         axes[0, 1].set_ylabel('Flux')
         axes[0, 1].grid(True, alpha=0.3)
     
-    # 3. Phase Fold (if available)
     if phase_data is not None and len(phase_data) > 0:
         axes[1, 0].scatter(phase_data, flux_data, s=5, alpha=0.5, c='black')
         axes[1, 0].set_title(f'Phase Folded (P={period:.3f}d)', fontweight='bold')
@@ -106,7 +100,6 @@ def create_live_visualization(time_data, flux_data, period, phase_data=None):
         axes[1, 0].invert_yaxis()
         axes[1, 0].grid(True, alpha=0.3)
     
-    # 4. Statistics
     axes[1, 1].axis('off')
     stats_text = f"""
     📊 DETECTION STATISTICS
@@ -134,7 +127,6 @@ def main():
     """Run the visual demo."""
     print_banner()
     
-    # Check server
     print("\n🔌 Connecting to backend...")
     try:
         response = requests.get(f"{API_URL}/health", timeout=2)
@@ -147,7 +139,6 @@ def main():
         print("❌ Cannot connect to backend!")
         return
     
-    # Get datasets
     animated_progress("📁 Loading NASA mission data", 1.5)
     response = requests.get(f"{API_URL}/api/datasets/")
     datasets = response.json()
@@ -160,22 +151,18 @@ def main():
     for ds in datasets:
         print(f"   • {ds['dataset_id']}: {ds['num_points']} observations")
     
-    # Select true positive dataset
     dataset_id = "kepler_tp"
     print(f"\n🎯 Analyzing: {dataset_id} (known exoplanet transit)")
     
-    # Load data for visualization
     import pandas as pd
     df = pd.read_csv(f"assets/demos/{dataset_id}.csv")
     time_data = df.iloc[:, 0].values
     flux_data = df.iloc[:, 1].values
     
-    # Create initial visualization
     print("\n📊 Generating visualizations...")
     viz_path = create_live_visualization(time_data, flux_data, 1.26)
     print(f"   Saved to: {viz_path}")
     
-    # Start detection
     animated_progress("🔬 Running BLS period search", 2)
     
     response = requests.post(
@@ -197,7 +184,6 @@ def main():
     job_id = job["job_id"]
     print(f"\n✓ Detection job started: {job_id}")
     
-    # Monitor with animation
     print("\n🔄 Processing stages:")
     stages = ["loading", "preprocessing", "bls_search", "candidate_analysis", "completed"]
     stage_names = {
@@ -221,7 +207,6 @@ def main():
             print(f"\n❌ Detection failed: {status.get('error', 'Unknown error')}")
             return
         
-        # Animate stages
         current_step = status.get("current_step") or ""
         for stage in stages[current_stage_idx:]:
             if stage in current_step:
@@ -231,7 +216,6 @@ def main():
         
         time.sleep(0.5)
     
-    # Get results
     print("\n\n📊 DETECTION RESULTS")
     print("=" * 70)
     
@@ -258,7 +242,6 @@ def main():
             print(f"   Duration: {c['duration_hours']:.2f} hours")
             print(f"   Decision: {c['rl_action'].upper()}")
             
-            # Show physics flags
             flags = c['flags']
             print(f"\n   Physics Checks:")
             for flag, value in flags.items():
@@ -270,7 +253,6 @@ def main():
         print("   (This is expected for short 2-day demo data)")
         print("\n💡 TIP: Real exoplanet detection requires 30-90 days of data")
     
-    # Final summary
     print("\n" + "=" * 70)
     print("\n🎉 DEMO COMPLETE!")
     print("\n📈 System Capabilities:")

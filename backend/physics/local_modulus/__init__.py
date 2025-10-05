@@ -10,7 +10,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Import local Modulus components
 try:
     from .transit_model import fit_transit_parameters
     from .limb_darkening import compute_limb_darkening
@@ -45,17 +44,13 @@ def fit_transit(time: np.ndarray, flux: np.ndarray, flux_err: Optional[np.ndarra
         raise ImportError("Local Modulus components not available")
 
     try:
-        # Estimate uncertainties if not provided
         if flux_err is None:
             flux_err = np.ones_like(flux) * np.std(flux)
 
-        # Call Modulus fitter
         result = fit_transit_parameters(time, flux, flux_err)
 
-        # Compute limb darkening
-        u1, u2 = compute_limb_darkening(stellar_teff=5778.0)  # Default solar-like
+        u1, u2 = compute_limb_darkening(stellar_teff=5778.0)
 
-        # Package results
         return {
             "period_days": result["period"],
             "t0_bjd": result["t0"],

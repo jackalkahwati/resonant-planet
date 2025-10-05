@@ -14,13 +14,13 @@ def hash_array(arr: np.ndarray) -> str:
 @lru_cache(maxsize=100)
 def get_cached_preprocess(data_hash: str, time: tuple, flux: tuple, flux_err: tuple):
     """Cache preprocessing results - actual computation done elsewhere."""
-    return None  # Placeholder for cache key
+    return None
 
 
 @lru_cache(maxsize=50)
 def get_cached_bls(data_hash: str, min_period: float, max_period: float):
     """Cache BLS search results - actual computation done elsewhere."""
-    return None  # Placeholder for cache key
+    return None
 
 
 def clear_cache():

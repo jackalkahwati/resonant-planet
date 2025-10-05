@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Monitor JWST MAST archive for new transmission spectroscopy observations.
 
@@ -25,13 +24,11 @@ from core.biosignatures import BiosignatureDetector
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Configuration
-CHECK_INTERVAL_HOURS = 6  # Check every 6 hours
-LOOKBACK_DAYS = 7  # Check for data released in last 7 days
+CHECK_INTERVAL_HOURS = 6
+LOOKBACK_DAYS = 7
 ANALYSIS_LOG = Path(__file__).parent.parent / 'data' / 'jwst_monitoring' / 'analysis_log.json'
 OUTPUT_DIR = Path(__file__).parent.parent / 'data' / 'jwst_new'
 
-# Ensure directories exist
 ANALYSIS_LOG.parent.mkdir(parents=True, exist_ok=True)
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -58,12 +55,8 @@ def get_target_params(target_name):
     
     For rapid analysis, use reasonable defaults if data unavailable.
     """
-    # TODO: Query SIMBAD/ExoplanetArchive for actual parameters
-    # For now, return reasonable defaults
     logger.info(f"Getting parameters for {target_name}...")
     
-    # Check if it's a known exoplanet
-    # This is a placeholder - in production, query NASA Exoplanet Archive
     known_targets = {
         'K2-18 b': {'temperature_k': 270, 'planet_radius_earth': 2.6},
         'TRAPPIST-1 e': {'temperature_k': 250, 'planet_radius_earth': 0.92},
@@ -72,7 +65,6 @@ def get_target_params(target_name):
         'LHS 475 b': {'temperature_k': 580, 'planet_radius_earth': 0.99},
     }
     
-    # Normalize target name
     for known_name, params in known_targets.items():
         if known_name.lower() in target_name.lower():
             logger.info(f"✓ Found known target: {known_name}")
@@ -84,7 +76,6 @@ def get_target_params(target_name):
                 'age_gyr': 4.5
             }
     
-    # Default for unknown targets (assume temperate mini-Neptune)
     logger.warning(f"Unknown target {target_name}, using default parameters")
     return {
         'name': target_name,
@@ -104,21 +95,17 @@ def run_rapid_analysis(obs_id, target_name, data_file):
     logger.info(f"Starting rapid analysis of {target_name}...")
     
     try:
-        # Load spectrum
         wavelengths, depths, uncertainties = load_jwst_spectrum(data_file)
         
         if len(wavelengths) < 10:
             logger.warning(f"Insufficient data points ({len(wavelengths)}) for {target_name}")
             return None
         
-        # Get target parameters
         params = get_target_params(target_name)
         
-        # Run biosignature detection
         detector = BiosignatureDetector()
         result = detector.analyze_spectrum(wavelengths, depths, params)
         
-        # Format result
         analysis = {
             'obs_id': obs_id,
             'target': target_name,
@@ -131,14 +118,12 @@ def run_rapid_analysis(obs_id, target_name, data_file):
             'explanation': result.explanation
         }
         
-        # Log result
         if result.biosignature_score > 0.5:
             logger.info(f"🌟 POTENTIAL BIOSIGNATURE: {target_name}")
             logger.info(f"   Score: {result.biosignature_score:.3f}")
             logger.info(f"   Molecules: {', '.join(result.detected_molecules)}")
             logger.info(f"   Confidence: {result.confidence_level}")
             
-            # Generate alert
             generate_biosignature_alert(analysis)
         else:
             logger.info(f"✓ Analyzed {target_name}: No biosignatures")
@@ -192,12 +177,9 @@ def check_new_jwst_spectra():
     logger.info(f"JWST MONITORING CHECK - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info("=" * 80)
     
-    # Load analysis log
     log = load_analysis_log()
     
     try:
-        # Query for recent JWST observations
-        # Focus on transmission spectroscopy programs
         end_time = Time.now()
         start_time = end_time - timedelta(days=LOOKBACK_DAYS)
         
@@ -218,7 +200,6 @@ def check_new_jwst_spectra():
         
         logger.info(f"Found {len(observations)} recent observations")
         
-        # Filter for new observations
         new_obs = []
         for obs in observations:
             obs_id = obs['obs_id']
@@ -232,7 +213,6 @@ def check_new_jwst_spectra():
         
         logger.info(f"🚨 {len(new_obs)} NEW observations to analyze!")
         
-        # Analyze each new observation
         for obs in new_obs:
             obs_id = obs['obs_id']
             target_name = obs['target_name']
@@ -241,11 +221,9 @@ def check_new_jwst_spectra():
             logger.info(f"NEW OBSERVATION: {target_name} ({obs_id})")
             logger.info(f"{'=' * 80}")
             
-            # Download data products
             try:
                 data_products = Observations.get_product_list(obs)
                 
-                # Filter for 1D extracted spectra
                 spec_products = [p for p in data_products 
                                 if 'x1d' in p['productSubGroupDescription'].lower() or
                                    'spectrum' in p['productSubGroupDescription'].lower()]
@@ -254,14 +232,12 @@ def check_new_jwst_spectra():
                     logger.warning(f"No spectrum products found for {obs_id}")
                     continue
                 
-                # Download
                 download_dir = OUTPUT_DIR / obs_id
                 download_dir.mkdir(parents=True, exist_ok=True)
                 
                 logger.info(f"Downloading {len(spec_products)} spectrum files...")
                 Observations.download_products(spec_products, download_dir=str(download_dir))
                 
-                # Find downloaded spectrum file
                 spec_files = list(download_dir.rglob('*x1d*.fits'))
                 if len(spec_files) == 0:
                     spec_files = list(download_dir.rglob('*.fits'))
@@ -273,25 +249,21 @@ def check_new_jwst_spectra():
                 spec_file = spec_files[0]
                 logger.info(f"Using spectrum file: {spec_file.name}")
                 
-                # Run rapid analysis
                 result = run_rapid_analysis(obs_id, target_name, spec_file)
                 
                 if result:
-                    # Save result
                     result_file = download_dir / 'analysis_result.json'
                     with open(result_file, 'w') as f:
                         json.dump(result, f, indent=2)
                     
                     logger.info(f"✓ Analysis saved to: {result_file}")
                 
-                # Mark as analyzed
                 log['analyzed'].append(obs_id)
                 
             except Exception as e:
                 logger.error(f"Error processing {obs_id}: {e}")
                 continue
         
-        # Save updated log
         save_analysis_log(log)
         
     except Exception as e:
@@ -313,17 +285,14 @@ def main():
     logger.info("\nService starting...")
     logger.info("Press Ctrl+C to stop\n")
     
-    # Run initial check
     check_new_jwst_spectra()
     
-    # Schedule periodic checks
     schedule.every(CHECK_INTERVAL_HOURS).hours.do(check_new_jwst_spectra)
     
-    # Keep running
     try:
         while True:
             schedule.run_pending()
-            time.sleep(3600)  # Check every hour if scheduled task should run
+            time.sleep(3600)
     except KeyboardInterrupt:
         logger.info("\n\nMonitoring service stopped by user")
         logger.info("Goodbye!")

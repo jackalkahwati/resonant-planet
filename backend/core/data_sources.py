@@ -18,11 +18,9 @@ except ImportError:
     logger.warning("lightkurve not installed - NASA data fetching disabled")
 
 try:
-    # Try new import path first (astroquery >= 0.4.7)
     try:
         from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
     except ImportError:
-        # Fall back to old import path
         from astroquery.nasa_exoplanet_archive import NasaExoplanetArchive
     EXOPLANET_ARCHIVE_AVAILABLE = True
 except ImportError:
@@ -58,7 +56,6 @@ def fetch_kepler_lightcurve(
     
     logger.info(f"Searching for {target_id} in Kepler archive...")
     
-    # Search for target
     search_result = lk.search_lightcurve(target_id, mission='Kepler')
     
     if len(search_result) == 0:
@@ -66,7 +63,6 @@ def fetch_kepler_lightcurve(
     
     logger.info(f"Found {len(search_result)} observations")
     
-    # Download specific quarter or first available
     if quarter is not None:
         search_result = search_result[search_result.mission == f'Kepler Quarter {quarter:02d}']
         if len(search_result) == 0:
@@ -74,13 +70,11 @@ def fetch_kepler_lightcurve(
     
     lc = search_result[0].download()
     
-    # Clean and normalize
     lc = lc.remove_nans().remove_outliers()
     lc = lc.normalize()
     
-    # Extract arrays and convert masked arrays to regular numpy arrays
-    time = np.asarray(lc.time.value)  # Days (BJD - 2454833)
-    flux = np.asarray(lc.flux.value)  # Normalized
+    time = np.asarray(lc.time.value)
+    flux = np.asarray(lc.flux.value)
     flux_err = np.asarray(lc.flux_err.value) if lc.flux_err is not None else np.ones_like(flux) * 0.001
     
     logger.info(f"Downloaded {len(time)} points, span: {time.max() - time.min():.1f} days")
@@ -126,8 +120,7 @@ def fetch_tess_lightcurve(
     lc = search_result[0].download()
     lc = lc.remove_nans().remove_outliers().normalize()
     
-    # Convert masked arrays to regular numpy arrays
-    time = np.asarray(lc.time.value)  # BJD - 2457000
+    time = np.asarray(lc.time.value)
     flux = np.asarray(lc.flux.value)
     flux_err = np.asarray(lc.flux_err.value) if lc.flux_err is not None else np.ones_like(flux) * 0.001
     
@@ -174,24 +167,22 @@ def search_targets(
     if coordinates:
         results = lk.search_lightcurve(coordinates, radius=radius, mission=mission)
     else:
-        # Return popular targets for browsing
         if mission.lower() == 'kepler':
-            # Some confirmed multi-planet systems
             popular = [
-                'Kepler-90',  # 8 planet system
-                'Kepler-11',  # 6 planet system
-                'Kepler-20',  # Rocky planets
-                'Kepler-186', # Habitable zone planet
+                'Kepler-90',
+                'Kepler-11',
+                'Kepler-20',
+                'Kepler-186',
                 'Kepler-452', # Earth's cousin
                 'KIC 8462852', # Tabby's star
             ]
             return popular
         elif mission.lower() == 'tess':
             popular = [
-                'TOI-700',    # Habitable zone
-                'TOI-270',    # Super-Earths
-                'TOI-175',    # Rocky
-                'TOI-216',    # Sub-Neptune
+                'TOI-700',
+                'TOI-270',
+                'TOI-175',
+                'TOI-216',
             ]
             return popular
         else:
@@ -204,7 +195,6 @@ def search_targets(
     return target_names
 
 
-# Known exoplanet catalog for quick access
 CONFIRMED_PLANETS = {
     'Kepler-90i': {'kic': 'KIC 11442793', 'period': 14.45, 'depth_ppm': 900, 'note': 'Earth-size in 8-planet system'},
     'Kepler-452b': {'kic': 'KIC 10593626', 'period': 384.8, 'depth_ppm': 300, 'note': "Earth's cousin"},
@@ -267,7 +257,6 @@ def fetch_confirmed_planet(planet_name: str, quarter: Optional[int] = None) -> T
         raise ValueError(f"No target ID found for {planet_name}")
 
 
-# ========== NASA Exoplanet Archive Integration ==========
 
 def query_exoplanet_archive(planet_name: str) -> Dict[str, Any]:
     """
@@ -315,7 +304,6 @@ def query_exoplanet_archive(planet_name: str) -> Dict[str, Any]:
     logger.info(f"Querying NASA Exoplanet Archive for {planet_name}...")
     
     try:
-        # Query the Planetary Systems Composite Parameters table
         result = NasaExoplanetArchive.query_object(
             planet_name,
             table='pscomppars'
@@ -324,25 +312,20 @@ def query_exoplanet_archive(planet_name: str) -> Dict[str, Any]:
         if result is None or len(result) == 0:
             raise ValueError(f"No confirmed planet found: {planet_name}")
         
-        # Take first result (most recent/default)
         row = result[0]
         
-        # Helper function to safely extract masked values
         def safe_extract(row, key, dtype=float):
             """Safely extract value from potentially masked astropy table."""
             try:
                 val = row[key]
-                # Check if it's a masked value
                 if hasattr(val, 'mask') and val.mask:
                     return None
-                # Handle astropy Quantity objects (with units)
                 if hasattr(val, 'value'):
                     return dtype(val.value)
                 return dtype(val)
             except (KeyError, ValueError, TypeError):
                 return None
         
-        # Extract key parameters with None fallback for missing values
         params = {
             'pl_name': str(row['pl_name']),
             'hostname': str(row['hostname']),
@@ -416,15 +399,12 @@ def validate_detection(
     logger.info(f"Validating detection for {target_id}: P={detected_period:.2f}d")
     
     try:
-        # Search for all planets around this star
-        # First try exact hostname match
         result = NasaExoplanetArchive.query_criteria(
             table='pscomppars',
             where=f"hostname='{target_id}'"
         )
         
         if result is None or len(result) == 0:
-            # Try without system suffix
             hostname = target_id.split()[0]  # 'Kepler-90 i' -> 'Kepler-90'
             result = NasaExoplanetArchive.query_criteria(
                 table='pscomppars',
@@ -432,7 +412,6 @@ def validate_detection(
             )
         
         if result is None or len(result) == 0:
-            # Try searching by planet name prefix (e.g., 'Kepler-90%')
             result = NasaExoplanetArchive.query_criteria(
                 table='pscomppars',
                 where=f"pl_name like '{target_id}%'"
@@ -448,19 +427,16 @@ def validate_detection(
                 'all_planets': []
             }
         
-        # Extract all known planets
         all_planets = []
         best_match = None
         min_difference = float('inf')
         
-        # Helper function to safely extract masked values
         def safe_extract(row, key, dtype=float):
             """Safely extract value from potentially masked astropy table."""
             try:
                 val = row[key]
                 if hasattr(val, 'mask') and val.mask:
                     return None
-                # Handle astropy Quantity objects (with units)
                 if hasattr(val, 'value'):
                     return dtype(val.value)
                 return dtype(val)
@@ -559,14 +535,12 @@ def search_habitable_zone_planets(
     if result is None or len(result) == 0:
         return []
     
-    # Helper function to safely extract masked values
     def safe_extract(row, key, dtype=float):
         """Safely extract value from potentially masked astropy table."""
         try:
             val = row[key]
             if hasattr(val, 'mask') and val.mask:
                 return None
-            # Handle astropy Quantity objects (with units)
             if hasattr(val, 'value'):
                 return dtype(val.value)
             return dtype(val)

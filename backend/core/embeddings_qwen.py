@@ -47,19 +47,15 @@ class SimpleTimeSeriesEncoder(nn.Module):
         torch.Tensor
             Embeddings shape (batch, embedding_dim)
         """
-        # Ensure 3D input
         if x.dim() == 2:
             x = x.unsqueeze(1)
 
-        # Convolutional layers
         x = self.activation(self.conv1(x))
         x = self.activation(self.conv2(x))
         x = self.activation(self.conv3(x))
 
-        # Global pooling
         x = self.pool(x).squeeze(-1)
 
-        # Final projection
         x = self.fc(x)
 
         return x
@@ -86,14 +82,11 @@ class QwenEmbeddings:
         self.device = device
         self.embedding_dim = 128
 
-        # Try to load Qwen model
         self.model = None
         self.use_qwen = False
 
         if weights_path and Path(weights_path).exists():
             try:
-                # For now, use simple encoder
-                # In production, this would load actual Qwen weights
                 self.model = SimpleTimeSeriesEncoder(embedding_dim=self.embedding_dim)
                 self.model.load_state_dict(torch.load(weights_path, map_location=device))
                 self.model.eval()
@@ -103,7 +96,6 @@ class QwenEmbeddings:
                 logger.warning(f"Failed to load Qwen model: {e}")
 
         if self.model is None:
-            # Use simple encoder without pretrained weights
             self.model = SimpleTimeSeriesEncoder(embedding_dim=self.embedding_dim)
             self.model.eval()
             logger.info("Using simple encoder (no pretrained weights)")
@@ -128,11 +120,9 @@ class QwenEmbeddings:
         np.ndarray
             Embedding vector (length: embedding_dim)
         """
-        # Normalize if requested
         if normalize:
             flux = (flux - np.mean(flux)) / (np.std(flux) + 1e-8)
 
-        # Interpolate to fixed length if needed
         target_length = 512
         if len(flux) != target_length:
             flux_interp = np.interp(
@@ -141,10 +131,8 @@ class QwenEmbeddings:
         else:
             flux_interp = flux
 
-        # Convert to tensor
         flux_tensor = torch.tensor(flux_interp, dtype=torch.float32).unsqueeze(0)
 
-        # Forward pass
         with torch.no_grad():
             embedding = self.model(flux_tensor)
 
@@ -168,7 +156,6 @@ class QwenEmbeddings:
         """
         features = []
 
-        # Basic statistics
         features.append(np.mean(flux))
         features.append(np.std(flux))
         features.append(np.median(flux))
@@ -177,25 +164,21 @@ class QwenEmbeddings:
         features.append(np.min(flux))
         features.append(np.max(flux))
 
-        # Skewness and kurtosis
         from scipy.stats import skew, kurtosis
 
         features.append(skew(flux))
         features.append(kurtosis(flux))
 
-        # Autocorrelation at lag 1
         if len(flux) > 1:
             features.append(np.corrcoef(flux[:-1], flux[1:])[0, 1])
         else:
             features.append(0.0)
 
-        # Power spectrum features
         fft = np.fft.fft(flux - np.mean(flux))
         psd = np.abs(fft) ** 2
         features.append(np.max(psd))
         features.append(np.argmax(psd))
 
-        # Pad to embedding_dim
         features = np.array(features)
         if len(features) < self.embedding_dim:
             features = np.pad(features, (0, self.embedding_dim - len(features)))
@@ -205,7 +188,6 @@ class QwenEmbeddings:
         return features
 
 
-# Global instance (lazy initialization)
 _qwen_instance: Optional[QwenEmbeddings] = None
 
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Quick demo script for testing the Resonant Worlds Explorer backend.
 
@@ -28,7 +27,6 @@ def main():
     print("=" * 70)
     print()
 
-    # Check server
     print("1. Checking server status...")
     if not check_server():
         print("   ❌ Server not responding at", API_URL)
@@ -38,14 +36,12 @@ def main():
     print("   ✓ Server is running")
     print()
 
-    # Get backend info
     response = requests.get(f"{API_URL}/")
     info = response.json()
     print(f"   Backend: {info['modulus_backend']['name']}")
     print(f"   Using local Modulus: {info['modulus_backend']['backend'] == 'local'}")
     print()
 
-    # List datasets
     print("2. Listing available datasets...")
     response = requests.get(f"{API_URL}/api/datasets/")
     datasets = response.json()
@@ -59,18 +55,16 @@ def main():
         print("   Demo files should be in: backend/assets/demos/")
         return
 
-    # Select first dataset
     dataset_id = datasets[0]["dataset_id"]
     print(f"3. Running detection on dataset: {dataset_id}...")
 
-    # Start run (use lower SNR threshold for demo data which spans only 2 days)
     response = requests.post(
         f"{API_URL}/api/run",
         json={
             "dataset_id": dataset_id,
             "min_period_days": 0.5,
-            "max_period_days": 3.0,  # Demo data spans only 2 days
-            "min_snr": 3.0,  # Lower threshold for short demo data
+            "max_period_days": 3.0,
+            "min_snr": 3.0,
             "max_candidates": 5,
         },
     )
@@ -84,7 +78,6 @@ def main():
     print(f"   ✓ Started job: {job_id}")
     print()
 
-    # Monitor progress
     print("4. Monitoring progress...")
     last_step = None
 
@@ -111,7 +104,6 @@ def main():
 
     print()
 
-    # Get results
     print("5. Retrieving results...")
     response = requests.get(f"{API_URL}/api/results/{job_id}")
     
@@ -133,7 +125,6 @@ def main():
     print(f"   - Human review: {results['human_review_count']}")
     print()
 
-    # Show candidates
     if results["candidates"]:
         print("6. Candidate summary:")
         print()
@@ -147,7 +138,6 @@ def main():
 
         print()
 
-        # Show flags for first candidate
         if results["candidates"]:
             c = results["candidates"][0]
             print("7. Physics flags for first candidate:")
@@ -156,7 +146,6 @@ def main():
                 print(f"   {status} {flag}")
             print()
 
-    # Download report
     print("8. Downloading PDF report...")
     response = requests.get(f"{API_URL}/api/report/{job_id}")
 

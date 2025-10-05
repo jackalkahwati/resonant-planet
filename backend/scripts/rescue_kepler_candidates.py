@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Re-analyze Kepler uncertain candidates with physics-informed filtering.
 
@@ -26,7 +25,6 @@ from core.rl_policy import RLTriagePolicy
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Input/output directories
 INPUT_DIR = Path(__file__).parent.parent / 'data' / 'kepler_candidates'
 OUTPUT_DIR = Path(__file__).parent.parent / 'data' / 'rescued_candidates'
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -51,19 +49,16 @@ def analyze_candidate(lc_file, metadata_row, modulus, rl_policy):
         dict with analysis results
     """
     try:
-        # Load light curve
         lc = pd.read_csv(lc_file)
         
         if len(lc) < 100:
             return {'status': 'failed', 'reason': 'too_short'}
         
-        # Preprocess
         time, flux = preprocess_light_curve(lc['time'].values, lc['flux'].values)
         
         if time is None:
             return {'status': 'failed', 'reason': 'preprocessing_failed'}
         
-        # BLS period search
         periods, powers, depths, durations, snrs = run_bls_search(
             time, flux,
             period_min=10.0,
@@ -73,18 +68,15 @@ def analyze_candidate(lc_file, metadata_row, modulus, rl_policy):
         if len(periods) == 0:
             return {'status': 'no_transits', 'reason': 'bls_found_nothing'}
         
-        # Get best period
         best_idx = np.argmax(snrs)
         period = periods[best_idx]
         depth = depths[best_idx]
         duration = durations[best_idx]
         snr = snrs[best_idx]
         
-        # Get stellar parameters from metadata
         star_mass = metadata_row.get('koi_smass', 1.0)
         star_radius = metadata_row.get('koi_srad', 1.0)
         
-        # Modulus physics validation
         physics_result = modulus.fit_transit(
             period=period,
             depth=depth,
@@ -93,7 +85,6 @@ def analyze_candidate(lc_file, metadata_row, modulus, rl_policy):
             star_radius=star_radius
         )
         
-        # RL triage policy
         features = {
             'snr': physics_result.get('snr', snr),
             'depth': depth,
@@ -105,7 +96,6 @@ def analyze_candidate(lc_file, metadata_row, modulus, rl_policy):
         
         triage_result = rl_policy.triage(features)
         
-        # Determine status
         if triage_result['action'] == 'accept' and physics_result.get('valid', False):
             status = 'CONFIRMED'
             confidence = 'high' if physics_result.get('snr', 0) > 10 else 'medium'
@@ -143,12 +133,10 @@ def main():
     logger.info("=" * 80)
     logger.info("")
     
-    # Load metadata
     metadata = load_candidate_metadata()
     if metadata is None:
         return
     
-    # Get list of light curve files
     lc_files = sorted(glob(str(INPUT_DIR / '*.csv')))
     lc_files = [f for f in lc_files if 'metadata' not in f and 'summary' not in f]
     
@@ -159,20 +147,16 @@ def main():
         logger.error("Run fetch_kepler_uncertain.py first!")
         return
     
-    # Initialize pipeline components
     logger.info("Initializing pipeline components...")
     modulus = ModulusBackend(mode='local')  # Use local mode for now
     rl_policy = RLTriagePolicy()
     
-    # Analyze all candidates
     results = []
     
     logger.info("\nStarting bulk re-analysis...")
     for lc_file in tqdm(lc_files, desc="Analyzing candidates"):
-        # Extract KOI ID from filename
         koi_id = Path(lc_file).stem.replace('_', ' ')
         
-        # Get metadata for this candidate
         metadata_row = metadata[metadata['kepoi_name'] == koi_id]
         if len(metadata_row) == 0:
             logger.warning(f"No metadata for {koi_id}, skipping")
@@ -180,7 +164,6 @@ def main():
         
         metadata_row = metadata_row.iloc[0]
         
-        # Analyze
         result = analyze_candidate(lc_file, metadata_row, modulus, rl_policy)
         result['koi_id'] = koi_id
         result['kepler_name'] = metadata_row.get('kepler_name', koi_id)
@@ -191,15 +174,12 @@ def main():
         
         results.append(result)
     
-    # Convert to DataFrame
     results_df = pd.DataFrame(results)
     
-    # Save results
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     results_file = OUTPUT_DIR / f'rescue_results_{timestamp}.csv'
     results_df.to_csv(results_file, index=False)
     
-    # Generate summary statistics
     logger.info("\n" + "=" * 80)
     logger.info("RESCUE RESULTS SUMMARY")
     logger.info("=" * 80)
@@ -217,7 +197,6 @@ def main():
     logger.info(f"❌ FALSE POSITIVES: {false_positive} ({false_positive/total*100:.1f}%)")
     logger.info(f"⚠️  FAILED analysis: {failed} ({failed/total*100:.1f}%)")
     
-    # High-confidence confirmations
     high_conf = results_df[(results_df['status'] == 'CONFIRMED') & (results_df['confidence'] == 'high')]
     logger.info(f"\n⭐ HIGH-CONFIDENCE confirmations: {len(high_conf)}")
     
@@ -231,7 +210,6 @@ def main():
                        f"T={row['equilibrium_temperature']:.0f}K, "
                        f"SNR={row['snr']:.1f}")
     
-    # Habitable zone candidates
     habitable = results_df[
         (results_df['status'] == 'CONFIRMED') &
         (results_df['equilibrium_temperature'] >= 200) &
@@ -251,7 +229,6 @@ def main():
                        f"R={row['planet_radius_earth']:.2f}R⊕, "
                        f"T={row['equilibrium_temperature']:.0f}K")
     
-    # Save summary report
     summary_file = OUTPUT_DIR / f'rescue_summary_{timestamp}.txt'
     with open(summary_file, 'w') as f:
         f.write("KEPLER CANDIDATE RESCUE - SUMMARY REPORT\n")

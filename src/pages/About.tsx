@@ -14,7 +14,7 @@ const About = () => {
           </p>
         </div>
 
-        {/* Mission Statement */}
+        {}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-2xl">Mission Statement</CardTitle>
@@ -34,7 +34,7 @@ const About = () => {
           </CardContent>
         </Card>
 
-        {/* Core Technology: Modulus Integration */}
+        {}
         <Card className="mb-6 border-primary/30">
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -101,7 +101,7 @@ const About = () => {
           </CardContent>
         </Card>
 
-        {/* Data Provenance */}
+        {}
         <Card className="mb-6">
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -172,13 +172,13 @@ const About = () => {
 
             <div className="flex gap-3">
               <Button variant="outline" size="sm" asChild>
-                <a href="https://exoplanetarchive.ipac.caltech.edu/" target="_blank" rel="noopener noreferrer">
+                <a href="https:
                   <ExternalLink className="h-4 w-4" />
                   NASA Exoplanet Archive
                 </a>
               </Button>
               <Button variant="outline" size="sm" asChild>
-                <a href="https://mast.stsci.edu/portal/Mashup/Clients/Mast/Portal.html" target="_blank" rel="noopener noreferrer">
+                <a href="https:
                   <ExternalLink className="h-4 w-4" />
                   MAST Portal
                 </a>
@@ -187,7 +187,7 @@ const About = () => {
           </CardContent>
         </Card>
 
-        {/* Method References */}
+        {}
         <Card className="mb-6">
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -293,7 +293,7 @@ const About = () => {
             </div>
 
             <Button variant="secondary" size="sm" asChild>
-              <a href="https://github.com/jackalkahwati/resonant-planet" target="_blank" rel="noopener noreferrer">
+              <a href="https:
                 <FileText className="h-4 w-4" />
                 View Full Bibliography
               </a>
@@ -301,7 +301,7 @@ const About = () => {
           </CardContent>
         </Card>
 
-        {/* System Performance & Limitations */}
+        {}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-2xl">System Performance & Limitations</CardTitle>
@@ -385,7 +385,7 @@ const About = () => {
           </CardContent>
         </Card>
 
-        {/* Open Source */}
+        {}
         <Card className="mb-6">
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -401,13 +401,13 @@ const About = () => {
             </p>
             <div className="flex gap-3">
               <Button variant="hero" asChild>
-                <a href="https://github.com/jackalkahwati/resonant-planet" target="_blank" rel="noopener noreferrer">
+                <a href="https:
                   <Github className="h-4 w-4" />
                   View on GitHub
                 </a>
               </Button>
               <Button variant="secondary" asChild>
-                <a href="https://backend-api-production-6a91.up.railway.app/docs" target="_blank" rel="noopener noreferrer">
+                <a href="https:
                   <FileText className="h-4 w-4" />
                   API Documentation
                 </a>
@@ -416,7 +416,7 @@ const About = () => {
           </CardContent>
         </Card>
 
-        {/* License */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle>License & Citation</CardTitle>
@@ -434,7 +434,7 @@ const About = () => {
                 &nbsp;&nbsp;author = {`{Al-Kahwati, Jack},`}<br />
                 &nbsp;&nbsp;title = {`{Resonant Worlds Explorer: Modulus-Powered Exoplanet & Biosignature Detection},`}<br />
                 &nbsp;&nbsp;year = {`{2025},`}<br />
-                &nbsp;&nbsp;url = {`{https://github.com/jackalkahwati/resonant-planet}`}<br />
+                &nbsp;&nbsp;url = {`{https:
                 {`}`}
               </p>
             </div>

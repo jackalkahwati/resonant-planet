@@ -1,6 +1,4 @@
-/**
- * React hook for managing datasets from backend
- */
+
 import { useState, useEffect } from "react";
 import api, { type DatasetInfo } from "@/lib/api";
 
@@ -35,7 +33,7 @@ export function useDatasets(): UseDatasetsResult {
   const uploadFile = async (file: File): Promise<string> => {
     try {
       const response = await api.uploadDataset(file);
-      // Refresh datasets after upload
+      
       await fetchDatasets();
       return response.dataset_id;
     } catch (err) {

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Fetch Kepler uncertain/candidate exoplanets for re-analysis.
 
@@ -20,7 +19,6 @@ import time
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Output directories
 OUTPUT_DIR = Path(__file__).parent.parent / 'data' / 'kepler_candidates'
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -33,7 +31,6 @@ def fetch_candidate_list():
     """
     logger.info("Fetching Kepler candidate list from NASA Exoplanet Archive...")
     
-    # Query NASA Exoplanet Archive for CANDIDATE status KOIs
     query_url = (
         'https://exoplanetarchive.ipac.caltech.edu/TAP/sync?'
         'query=select+*+from+koi+where+koi_disposition="CANDIDATE"&format=csv'
@@ -95,14 +92,12 @@ def download_light_curves(candidates, max_targets=100):
         
         output_file = OUTPUT_DIR / f"{koi_id.replace(' ', '_')}.csv"
         
-        # Skip if already downloaded
         if output_file.exists():
             logger.debug(f"Skipping {koi_id} (already downloaded)")
             downloaded += 1
             continue
         
         try:
-            # Search for light curve
             search_result = lk.search_lightcurve(kepler_name, mission='Kepler', author='Kepler')
             
             if len(search_result) == 0:
@@ -110,7 +105,6 @@ def download_light_curves(candidates, max_targets=100):
                 failed += 1
                 continue
             
-            # Download all quarters and stitch
             lc_collection = search_result.download_all()
             
             if lc_collection is None or len(lc_collection) == 0:
@@ -118,20 +112,16 @@ def download_light_curves(candidates, max_targets=100):
                 failed += 1
                 continue
             
-            # Stitch quarters together
             lc = lc_collection.stitch()
             
-            # Remove NaNs and normalize
             lc = lc.remove_nans().normalize()
             
-            # Save to CSV
             df = pd.DataFrame({
                 'time': lc.time.value,
                 'flux': lc.flux.value,
                 'flux_err': lc.flux_err.value if hasattr(lc, 'flux_err') else [0.001] * len(lc.time)
             })
             
-            # Add metadata
             df.attrs['koi_id'] = koi_id
             df.attrs['period'] = row['koi_period']
             df.attrs['depth'] = row['koi_depth']
@@ -142,7 +132,6 @@ def download_light_curves(candidates, max_targets=100):
             df.to_csv(output_file, index=False)
             downloaded += 1
             
-            # Rate limiting
             time.sleep(0.5)
             
         except Exception as e:
@@ -161,7 +150,6 @@ def save_candidate_metadata(candidates, priority):
     priority.to_csv(metadata_file, index=False)
     logger.info(f"✓ Saved metadata to {metadata_file}")
     
-    # Save summary statistics
     summary_file = OUTPUT_DIR / 'candidate_summary.txt'
     with open(summary_file, 'w') as f:
         f.write("KEPLER UNCERTAIN CANDIDATES - SUMMARY\n")
@@ -188,23 +176,19 @@ def main():
     logger.info("=" * 60)
     logger.info("")
     
-    # Step 1: Fetch candidate list
     candidates = fetch_candidate_list()
     if candidates is None:
         logger.error("Failed to fetch candidate list. Exiting.")
         return
     
-    # Step 2: Filter for high-priority targets
     priority = filter_high_priority(candidates)
     
     if len(priority) == 0:
         logger.error("No high-priority candidates found. Exiting.")
         return
     
-    # Step 3: Save metadata
     save_candidate_metadata(candidates, priority)
     
-    # Step 4: Download light curves (start with 100 for testing)
     logger.info("\nStarting light curve download (first 100 targets)...")
     logger.info("This may take 30-60 minutes depending on network speed.")
     download_light_curves(priority, max_targets=100)

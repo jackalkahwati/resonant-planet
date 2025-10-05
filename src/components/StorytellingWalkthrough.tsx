@@ -11,15 +11,15 @@ interface WalkthroughStep {
   icon: any;
 }
 
-// Visual component for Step 1: Light curve with periodic dips
+
 const LightCurveVisual = () => (
   <svg viewBox="0 0 400 150" className="w-full h-full">
-    {/* Grid lines */}
+    {}
     <line x1="0" y1="75" x2="400" y2="75" stroke="currentColor" strokeOpacity="0.1" strokeDasharray="2,2" />
     <line x1="0" y1="25" x2="400" y2="25" stroke="currentColor" strokeOpacity="0.1" strokeDasharray="2,2" />
     <line x1="0" y1="125" x2="400" y2="125" stroke="currentColor" strokeOpacity="0.1" strokeDasharray="2,2" />
     
-    {/* Baseline flux */}
+    {}
     <path
       d="M 0,30 Q 50,28 100,32 Q 150,29 200,31 Q 250,30 300,29 Q 350,31 400,30"
       stroke="hsl(var(--primary))"
@@ -28,7 +28,7 @@ const LightCurveVisual = () => (
       opacity="0.6"
     />
     
-    {/* Transit dips */}
+    {}
     {[80, 180, 280].map((x) => (
       <g key={x}>
         <path
@@ -37,25 +37,25 @@ const LightCurveVisual = () => (
           strokeWidth="2.5"
           fill="none"
         />
-        {/* Transit marker */}
+        {}
         <circle cx={x} cy="50" r="2" fill="hsl(var(--destructive))" />
       </g>
     ))}
     
-    {/* Labels */}
+    {}
     <text x="10" y="20" fontSize="10" fill="currentColor" opacity="0.5">100%</text>
     <text x="10" y="140" fontSize="10" fill="currentColor" opacity="0.5">99%</text>
     <text x="180" y="145" fontSize="12" fill="currentColor" opacity="0.7" textAnchor="middle">Time →</text>
   </svg>
 );
 
-// Visual component for Step 2: Phase-folded transit
+
 const PhaseFoldedVisual = () => (
   <svg viewBox="0 0 400 150" className="w-full h-full">
-    {/* Grid */}
+    {}
     <line x1="0" y1="75" x2="400" y2="75" stroke="currentColor" strokeOpacity="0.1" strokeDasharray="2,2" />
     
-    {/* Data points (scattered) */}
+    {}
     {Array.from({ length: 50 }, (_, i) => {
       const x = 50 + i * 6;
       const phase = (x - 200) / 100;
@@ -64,7 +64,7 @@ const PhaseFoldedVisual = () => (
       return <circle key={i} cx={x} cy={y} r="1.5" fill="hsl(var(--primary))" opacity="0.5" />;
     })}
     
-    {/* Model fit (smooth line) */}
+    {}
     <path
       d="M 50,33 L 140,33 Q 155,33 165,80 L 235,80 Q 245,33 260,33 L 350,33"
       stroke="hsl(var(--destructive))"
@@ -72,17 +72,17 @@ const PhaseFoldedVisual = () => (
       fill="none"
     />
     
-    {/* Transit depth indicator */}
+    {}
     <line x1="360" y1="33" x2="360" y2="80" stroke="hsl(var(--destructive))" strokeWidth="1" strokeDasharray="3,3" />
     <text x="365" y="60" fontSize="10" fill="hsl(var(--destructive))">Depth</text>
     
-    {/* Labels */}
+    {}
     <text x="200" y="20" fontSize="12" fill="currentColor" opacity="0.7" textAnchor="middle">Phase-Folded Transit</text>
     <text x="200" y="145" fontSize="10" fill="currentColor" opacity="0.5" textAnchor="middle">Orbital Phase</text>
   </svg>
 );
 
-// Visual component for Step 3: Validation checks
+
 const ValidationVisual = () => (
   <div className="grid grid-cols-2 gap-3 p-4">
     <div className="flex items-center gap-2 p-3 bg-green-500/10 rounded-lg border border-green-500/30">
@@ -119,11 +119,11 @@ const ValidationVisual = () => (
   </div>
 );
 
-// Visual component for Step 4: Final confidence
+
 const ConfidenceVisual = () => (
   <div className="p-6">
     <div className="relative mb-6">
-      {/* Confidence circle */}
+      {}
       <div className="relative w-32 h-32 mx-auto">
         <svg viewBox="0 0 100 100" className="transform -rotate-90">
           <circle
@@ -267,12 +267,12 @@ export const StorytellingWalkthrough = () => {
           
           <p className="text-muted-foreground mb-4">{step.description}</p>
 
-          {/* Visual */}
+          {}
           <div className="aspect-video bg-muted rounded-lg flex items-center justify-center border border-border mb-4 overflow-hidden">
             {step.visual}
           </div>
 
-          {/* Progress bar */}
+          {}
           <div className="flex gap-1">
             {steps.map((_, idx) => (
               <div
