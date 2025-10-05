@@ -5,7 +5,10 @@ import numpy as np
 from scipy.signal import medfilt, savgol_filter
 from scipy.interpolate import interp1d
 from typing import Optional, Tuple
-from core.cache import hash_array
+from core.cache import hash_array, preprocess_cache
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def normalize_flux(flux: np.ndarray, method: str = "median") -> np.ndarray:
@@ -228,8 +231,6 @@ def estimate_noise(flux: np.ndarray, method: str = "mad") -> float:
         raise ValueError(f"Unknown noise estimation method: {method}")
 
 
-_preprocess_cache = {}
-
 def preprocess_pipeline(
     time: np.ndarray,
     flux: np.ndarray,
@@ -265,8 +266,10 @@ def preprocess_pipeline(
         (time, flux, flux_err) preprocessed arrays
     """
     cache_key = f"{hash_array(time)}_{hash_array(flux)}_{sigma_clip}_{detrend_window_hours}"
-    if cache_key in _preprocess_cache:
-        return _preprocess_cache[cache_key]
+    cached_result = preprocess_cache.get(cache_key)
+    if cached_result is not None:
+        logger.debug(f"Preprocessing cache hit (key: {cache_key[:16]}...)")
+        return cached_result
     
     flux_norm = normalize_flux(flux, method="median")
 
@@ -287,8 +290,9 @@ def preprocess_pipeline(
             noise = estimate_noise(flux_detrended, method="mad")
             flux_err_clean = np.ones_like(flux_detrended) * noise
 
-    if len(_preprocess_cache) > 100:
-        _preprocess_cache.clear()
-    _preprocess_cache[cache_key] = (time_clean, flux_detrended, flux_err_clean)
+    # Store in cache
+    result = (time_clean, flux_detrended, flux_err_clean)
+    preprocess_cache.put(cache_key, result)
+    logger.debug(f"Preprocessing result cached (key: {cache_key[:16]}...)")
     
-    return time_clean, flux_detrended, flux_err_clean
+    return result
