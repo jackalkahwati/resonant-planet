@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Telescope, Database, Brain, TrendingUp, Download, Rocket, Sparkles, Atom, Calculator, CheckCircle, FileText } from "lucide-react";
+import { Telescope, Database, Brain, TrendingUp, Download, Rocket, Sparkles, Atom, Calculator, CheckCircle, FileText, Presentation } from "lucide-react";
 import { StorytellingWalkthrough } from "@/components/StorytellingWalkthrough";
 import heroImage from "@/assets/hero-exoplanet.jpg";
 
@@ -59,6 +59,12 @@ const Home = () => {
                   Analyze Biosignatures
                 </Button>
               </Link>
+              <a href="/presentation.pdf" target="_blank" rel="noopener noreferrer">
+                <Button variant="secondary" size="lg">
+                  <Presentation className="h-5 w-5" />
+                  View Presentation
+                </Button>
+              </a>
               <a href="/research-paper.pdf" target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="lg">
                   <FileText className="h-5 w-5" />
