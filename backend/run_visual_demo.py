@@ -222,8 +222,9 @@ def main():
             return
         
         # Animate stages
+        current_step = status.get("current_step") or ""
         for stage in stages[current_stage_idx:]:
-            if stage in status.get("current_step", ""):
+            if stage in current_step:
                 print(f"\r{stage_names.get(stage, stage)}", end="", flush=True)
                 current_stage_idx += 1
                 break
