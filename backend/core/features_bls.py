@@ -4,6 +4,7 @@ Box Least Squares (BLS) period search and feature extraction.
 import numpy as np
 from typing import List, Tuple, Optional
 from dataclasses import dataclass
+from core.cache import hash_array
 
 
 @dataclass
@@ -268,6 +269,9 @@ def refine_period(
     return best_params
 
 
+# Cache for BLS results
+_bls_cache = {}
+
 def extract_bls_features(
     time: np.ndarray,
     flux: np.ndarray,
@@ -296,6 +300,11 @@ def extract_bls_features(
     List[BLSCandidate]
         Top BLS candidates, ranked by SNR
     """
+    # Check cache
+    cache_key = f"{hash_array(time)}_{hash_array(flux)}_{min_period}_{max_period}_{max_candidates}"
+    if cache_key in _bls_cache:
+        return _bls_cache[cache_key]
+    
     # Run BLS search
     periods, powers = bls_search(time, flux, min_period, max_period)
 
@@ -329,5 +338,10 @@ def extract_bls_features(
 
     # Sort by SNR
     candidates.sort(key=lambda c: c.snr, reverse=True)
+
+    # Store in cache (limit cache size)
+    if len(_bls_cache) > 50:
+        _bls_cache.clear()
+    _bls_cache[cache_key] = candidates
 
     return candidates
