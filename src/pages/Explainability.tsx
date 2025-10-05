@@ -33,7 +33,7 @@ const Explainability = () => {
               </div>
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-1">Duration</p>
-                <p className="text-2xl font-bold">2.8h</p>
+                <p className="text-2xl font-bold">2.8 hrs</p>
               </div>
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-1">SNR</p>
@@ -72,7 +72,7 @@ const Explainability = () => {
             </CardHeader>
             <CardContent>
               <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">Interactive Plotly chart will render here</p>
+                <p className="text-muted-foreground">Phase-folded light curve with transit model fit</p>
               </div>
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
@@ -98,7 +98,7 @@ const Explainability = () => {
             </CardHeader>
             <CardContent>
               <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">BLS periodogram visualization</p>
+                <p className="text-muted-foreground">BLS power spectrum with period peaks</p>
               </div>
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
@@ -124,7 +124,7 @@ const Explainability = () => {
             </CardHeader>
             <CardContent>
               <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">Saliency heatmap visualization</p>
+                <p className="text-muted-foreground">Model attention heatmap over time series</p>
               </div>
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
@@ -150,7 +150,7 @@ const Explainability = () => {
             </CardHeader>
             <CardContent>
               <div className="aspect-video bg-muted rounded-lg flex items-center justify-center mb-4">
-                <p className="text-muted-foreground">Odd/Even transit overlay plot</p>
+                <p className="text-muted-foreground">Odd vs even transit depth comparison</p>
               </div>
               <div className="grid md:grid-cols-2 gap-4 mb-4">
                 <div className="text-center p-4 bg-muted rounded-lg">
@@ -184,7 +184,7 @@ const Explainability = () => {
             </CardHeader>
             <CardContent>
               <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">Secondary eclipse window visualization</p>
+                <p className="text-muted-foreground">Phase 0.5 secondary eclipse search results</p>
               </div>
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
@@ -207,7 +207,7 @@ const Explainability = () => {
             </CardHeader>
             <CardContent>
               <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">Shape comparison plot</p>
+                <p className="text-muted-foreground">U-shape vs V-shape transit profile analysis</p>
               </div>
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
@@ -230,7 +230,7 @@ const Explainability = () => {
             </CardHeader>
             <CardContent>
               <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">Centroid shift analysis</p>
+                <p className="text-muted-foreground">Centroid position during transit events</p>
               </div>
               <Alert className="mt-4">
                 <Info className="h-4 w-4" />
