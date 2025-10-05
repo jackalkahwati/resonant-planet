@@ -25,6 +25,55 @@ const Explainability = () => {
     { name: "Centroid Stability", passed: selectedCandidate.validations.centroid, key: "centroid" },
   ];
 
+  const handleExportReport = () => {
+    const report = `EXOPLANET DETECTION REPORT
+${'='.repeat(60)}
+
+Candidate: ${selectedCandidate.name}
+Target ID: ${selectedCandidate.id}
+Mission: ${selectedCandidate.mission}
+
+DETECTION METRICS
+${'-'.repeat(60)}
+Period: ${selectedCandidate.period.toFixed(2)} days
+Transit Depth: ${(selectedCandidate.depth * 100).toFixed(2)}%
+Duration: ${selectedCandidate.duration.toFixed(1)} hours
+Signal-to-Noise Ratio: ${selectedCandidate.snr.toFixed(1)}
+
+CLASSIFICATION
+${'-'.repeat(60)}
+Our Pipeline Probability: ${(selectedCandidate.probability * 100).toFixed(0)}%
+Baseline Pipeline Probability: ${(selectedCandidate.baselineProbability * 100).toFixed(0)}%
+Status: ${selectedCandidate.isConfirmed ? 'CONFIRMED PLANET' : selectedCandidate.isFalsePositive ? 'FALSE POSITIVE' : 'CANDIDATE'}
+
+VALIDATION TESTS
+${'-'.repeat(60)}
+${validationTests.map(t => `${t.name}: ${t.passed ? 'PASS ✓' : 'FAIL ✗'}`).join('\n')}
+
+BASELINE FLAGS
+${'-'.repeat(60)}
+${selectedCandidate.baselineFlags.map(f => `• ${f}`).join('\n')}
+
+DESCRIPTION
+${'-'.repeat(60)}
+${selectedCandidate.description}
+
+${'='.repeat(60)}
+Generated: ${new Date().toISOString()}
+Resonant Worlds Explorer - NASA Space Apps Challenge 2025
+`;
+
+    const blob = new Blob([report], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedCandidate.id}_report_${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -48,7 +97,7 @@ const Explainability = () => {
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleExportReport}>
               <Download className="h-4 w-4 mr-2" />
               Export Report
             </Button>
