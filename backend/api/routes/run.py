@@ -222,4 +222,6 @@ async def start_run(params: RunParams, background_tasks: BackgroundTasks):
 
     logger.info(f"Started job {job_id} for dataset {dataset_id}")
 
-    return RunResponse(job_id=job_id, status="queued")
+    # Get job status to return
+    job = job_store.get_job(job_id)
+    return job
