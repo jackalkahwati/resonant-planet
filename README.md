@@ -155,7 +155,7 @@ curl -X POST http://localhost:8000/api/biosignatures/quick-analyze \
 └─────────────────────────────────────────────────────────────┘
 ```
 
-For detailed architecture, see [backend/ARCHITECTURE.md](backend/ARCHITECTURE.md)
+For detailed architecture, see [backend/docs/architecture/ARCHITECTURE.md](backend/docs/architecture/ARCHITECTURE.md)
 
 ---
 
@@ -212,7 +212,7 @@ For detailed architecture, see [backend/ARCHITECTURE.md](backend/ARCHITECTURE.md
 - **[SYSTEM_COMPLETE.md](SYSTEM_COMPLETE.md)** - Complete system summary
 - **[GETTING_STARTED.md](GETTING_STARTED.md)** - Detailed installation guide
 - **[API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md)** - API documentation
-- **[backend/ARCHITECTURE.md](backend/ARCHITECTURE.md)** - Technical architecture
+- **[backend/docs/architecture/ARCHITECTURE.md](backend/docs/architecture/ARCHITECTURE.md)** - Technical architecture
 - **[BIOSIGNATURE_DETECTION.md](BIOSIGNATURE_DETECTION.md)** - Biosignature methods
 - **[RESEARCH_PAPER.md](RESEARCH_PAPER.md)** - Full scientific methodology
 - **[system_overview.py](system_overview.py)** - Interactive system overview script

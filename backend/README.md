@@ -43,17 +43,17 @@ curl http://localhost:8000/health
 
 1. **Build and run**:
 ```bash
-docker-compose up -d
+docker-compose -f config/docker-compose.yml up -d
 ```
 
 2. **View logs**:
 ```bash
-docker-compose logs -f api
+docker-compose -f config/docker-compose.yml logs -f api
 ```
 
 3. **Stop**:
 ```bash
-docker-compose down
+docker-compose -f config/docker-compose.yml down
 ```
 
 ## API Endpoints
@@ -162,8 +162,17 @@ backend/
 ├── assets/
 │   └── demos/               # Demo light curves
 ├── tests/                   # Test suite
-├── Dockerfile
-├── docker-compose.yml
+├── docs/                    # Documentation
+│   ├── architecture/        # Architecture docs
+│   ├── guides/              # User guides
+│   └── status/              # Status reports
+├── data/
+│   ├── results/             # Analysis results
+│   └── scans/               # Scan configurations
+├── config/
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── pyproject.toml
 └── requirements.txt
 ```
 
@@ -217,7 +226,7 @@ pytest tests/ --cov=. --cov-report=html
 For production:
 
 1. Set `JOB_BACKEND=celery` in environment
-2. Use `docker-compose --profile celery up` to start workers
+2. Use `docker-compose -f config/docker-compose.yml --profile celery up` to start workers
 3. Configure proper CORS origins in `api/main.py`
 4. Set up reverse proxy (nginx/traefik)
 5. Enable HTTPS
@@ -230,8 +239,8 @@ For production:
 - Verify `physics/local_modulus/` exists
 
 **Issue**: "Job stuck in running"
-- Check logs: `docker-compose logs api`
-- Restart: `docker-compose restart api`
+- Check logs: `docker-compose -f config/docker-compose.yml logs api`
+- Restart: `docker-compose -f config/docker-compose.yml restart api`
 
 **Issue**: "Plots not rendering"
 - Ensure `run_artifacts/` directory is writable
