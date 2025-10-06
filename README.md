@@ -3,9 +3,9 @@
 **AI-powered exoplanet detection and biosignature analysis system**
 
 ### NASA Space Apps Challenge 2025 Submission  
-**Challenge:** [A World Away – Hunting for Exoplanets with AI](https://www.spaceappschallenge.org/)  
-**Date:** October 4–5, 2025  
-**Difficulty:** Advanced  
+This project was created for the **NASA Space Apps Challenge 2025** at the **Ames Research Center**.  
+It was built for the challenge **“A World Away: Hunting for Exoplanets with AI.”**
+The hackathon took place on **October 4-5, 2025**. 
 
 ---
 
