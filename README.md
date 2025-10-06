@@ -91,7 +91,7 @@ Detection Pipeline:
   4. Physics Validation → 5. ML Embeddings → 6. Classification
   7. RL Triage → 8. Explainability → 9. Report Generation
    ↓
-   Modulus (Cloud Physics Engine): Transit fitting and chemistry modeling
+Modulus (Cloud Physics Engine): Transit fitting and chemistry modeling
 ```
 
 ---
