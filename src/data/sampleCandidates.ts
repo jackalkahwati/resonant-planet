@@ -114,7 +114,3 @@ export const getDemoCandidate = (index: number = 0): Candidate => {
 export const getRandomDemo = (): Candidate => {
   return sampleCandidates[Math.floor(Math.random() * sampleCandidates.length)];
 };
-
-export const getCandidateById = (id: string): Candidate | undefined => {
-  return sampleCandidates.find(candidate => candidate.id === id);
-};

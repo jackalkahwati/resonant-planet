@@ -3,9 +3,6 @@
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-const DEFAULT_TIMEOUT = 30000; // 30 seconds
-const POLL_INTERVAL = 1000; // 1 second
-const MAX_POLL_TIMEOUT = 300000; // 5 minutes
 
 // ============================================================================
 // Types (matching backend schemas)
@@ -218,8 +215,8 @@ export const api = {
   async pollStatus(
     jobId: string,
     onProgress?: (status: JobStatus) => void,
-    interval: number = POLL_INTERVAL,
-    timeout: number = MAX_POLL_TIMEOUT
+    interval: number = 1000,
+    timeout: number = 300000 // 5 minutes
   ): Promise<JobStatus> {
     const startTime = Date.now();
 
