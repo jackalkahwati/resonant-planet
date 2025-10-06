@@ -42,8 +42,12 @@ export const Navigation = () => {
           </div>
 
           <div className="md:hidden">
-            <button className="text-muted-foreground hover:text-foreground">
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <button 
+              className="text-muted-foreground hover:text-foreground"
+              aria-label="Open navigation menu"
+              type="button"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
