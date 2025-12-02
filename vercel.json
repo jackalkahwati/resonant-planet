@@ -1,0 +1,9 @@
+{
+  "buildCommand": "cd exoplanet-ai/frontend && npm install && npm run build",
+  "outputDirectory": "exoplanet-ai/frontend/dist",
+  "installCommand": "cd exoplanet-ai/frontend && npm install",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}
