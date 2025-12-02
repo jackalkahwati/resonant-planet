@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ScatterChart, Scatter, ZAxis, Cell } from 'recharts';
-import { Database, ExternalLink, Loader2 } from 'lucide-react';
+import { Database, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { getKeplerData, getK2Data, getTessData, getCombinedStats, KeplerStats, K2Stats, TessStats, CombinedStats } from '@/lib/api';
+import { KeplerStats, K2Stats, TessStats, CombinedStats } from '@/lib/api';
 import { formatNumber } from '@/lib/utils';
 
 const COLORS = ['#8b5cf6', '#06b6d4', '#22c55e', '#f59e0b', '#ef4444', '#ec4899'];
@@ -122,43 +122,13 @@ type DatasetType = 'kepler' | 'k2' | 'tess';
 
 export const Data: React.FC = () => {
   const [activeDataset, setActiveDataset] = useState<DatasetType>('kepler');
-  const [loading, setLoading] = useState(true);
-  const [combinedStats, setCombinedStats] = useState<CombinedStats>(DEFAULT_COMBINED);
-  const [keplerStats, setKeplerStats] = useState<KeplerStats>(DEFAULT_KEPLER_STATS);
-  const [k2Stats, setK2Stats] = useState<K2Stats>(DEFAULT_K2_STATS);
-  const [tessStats, setTessStats] = useState<TessStats>(DEFAULT_TESS_STATS);
-  const [keplerData, setKeplerData] = useState<Record<string, unknown>[]>(DEFAULT_KEPLER_DATA);
-  const [k2Data, setK2Data] = useState<Record<string, unknown>[]>(DEFAULT_K2_DATA);
-  const [tessData, setTessData] = useState<Record<string, unknown>[]>(DEFAULT_TESS_DATA);
-
-  // Fetch real data on mount (will use defaults if API fails)
-  useEffect(() => {
-    const fetchAllData = async () => {
-      setLoading(true);
-      try {
-        const combined = await getCombinedStats();
-        setCombinedStats(combined);
-        
-        const kepler = await getKeplerData(50);
-        setKeplerStats(kepler.statistics);
-        setKeplerData(kepler.data);
-        
-        const k2 = await getK2Data(50);
-        setK2Stats(k2.statistics);
-        setK2Data(k2.data);
-        
-        const tess = await getTessData(50);
-        setTessStats(tess.statistics);
-        setTessData(tess.data);
-      } catch (error) {
-        console.error('Using default data - backend not available:', error);
-        // Defaults already set in state initialization
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAllData();
-  }, []);
+  const [combinedStats] = useState<CombinedStats>(DEFAULT_COMBINED);
+  const [keplerStats] = useState<KeplerStats>(DEFAULT_KEPLER_STATS);
+  const [k2Stats] = useState<K2Stats>(DEFAULT_K2_STATS);
+  const [tessStats] = useState<TessStats>(DEFAULT_TESS_STATS);
+  const [keplerData] = useState<Record<string, unknown>[]>(DEFAULT_KEPLER_DATA);
+  const [k2Data] = useState<Record<string, unknown>[]>(DEFAULT_K2_DATA);
+  const [tessData] = useState<Record<string, unknown>[]>(DEFAULT_TESS_DATA);
 
   // Get current dataset data
   const currentData = activeDataset === 'kepler' ? keplerData : activeDataset === 'k2' ? k2Data : tessData;
@@ -217,15 +187,6 @@ export const Data: React.FC = () => {
                       activeDataset === 'k2' ? k2Stats?.radius_stats : tessStats?.radius_stats;
   const tempStats = activeDataset === 'kepler' ? keplerStats?.temp_stats :
                     activeDataset === 'k2' ? k2Stats?.temp_stats : tessStats?.temp_stats;
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
-        <span className="ml-2 text-gray-400">Loading NASA exoplanet data...</span>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
