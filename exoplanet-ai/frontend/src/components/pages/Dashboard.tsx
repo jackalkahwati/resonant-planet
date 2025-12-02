@@ -19,7 +19,6 @@ const DEFAULT_CLASS_DIST = {
 export const Dashboard: React.FC = () => {
   const [modelStatus, setModelStatus] = useState<ModelStatus | null>(null);
   const [dataStats, setDataStats] = useState<DataStatistics | null>({
-    status: 'success',
     dataset: 'kepler',
     total_records: 9564,
     class_distribution: DEFAULT_CLASS_DIST,
