@@ -653,6 +653,255 @@ async def load_model(path: str = "models/exoplanet_ensemble.joblib"):
         raise HTTPException(status_code=500, detail=f"Failed to load model: {str(e)}")
 
 
+# =====================================================
+# LOCAL CSV DATA ENDPOINTS
+# =====================================================
+
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
+
+def load_csv_skip_comments(filepath: str) -> pd.DataFrame:
+    """Load CSV file, skipping comment lines starting with #"""
+    with open(filepath, 'r') as f:
+        lines = [line for line in f if not line.startswith('#')]
+    return pd.read_csv(io.StringIO(''.join(lines)))
+
+
+@app.get("/api/local/datasets")
+async def get_local_datasets():
+    """Get list of available local datasets"""
+    datasets = []
+    if os.path.exists(DATA_DIR):
+        for f in os.listdir(DATA_DIR):
+            if f.endswith('.csv'):
+                filepath = os.path.join(DATA_DIR, f)
+                df = load_csv_skip_comments(filepath)
+                datasets.append({
+                    "name": f.replace('.csv', ''),
+                    "filename": f,
+                    "records": len(df),
+                    "columns": len(df.columns)
+                })
+    return {"status": "success", "datasets": datasets}
+
+
+@app.get("/api/local/kepler")
+async def get_kepler_data(limit: int = 100):
+    """Get Kepler KOI data from local CSV"""
+    try:
+        filepath = os.path.join(DATA_DIR, "kepler.csv")
+        if not os.path.exists(filepath):
+            raise HTTPException(status_code=404, detail="Kepler data file not found")
+        
+        df = load_csv_skip_comments(filepath)
+        
+        # Compute statistics
+        disposition_counts = df['koi_disposition'].value_counts().to_dict() if 'koi_disposition' in df.columns else {}
+        
+        def safe_stats(series):
+            clean = pd.to_numeric(series, errors='coerce').dropna()
+            clean = clean[~np.isinf(clean)]
+            if len(clean) == 0:
+                return {'min': 0, 'max': 0, 'mean': 0, 'median': 0}
+            return {
+                'min': float(clean.min()),
+                'max': float(clean.max()),
+                'mean': float(clean.mean()),
+                'median': float(clean.median())
+            }
+        
+        stats = {
+            "total_records": len(df),
+            "disposition_distribution": disposition_counts,
+            "confirmed": len(df[df['koi_disposition'] == 'CONFIRMED']) if 'koi_disposition' in df.columns else 0,
+            "candidates": len(df[df['koi_disposition'] == 'CANDIDATE']) if 'koi_disposition' in df.columns else 0,
+            "false_positives": len(df[df['koi_disposition'] == 'FALSE POSITIVE']) if 'koi_disposition' in df.columns else 0,
+            "period_stats": safe_stats(df['koi_period']) if 'koi_period' in df.columns else {},
+            "radius_stats": safe_stats(df['koi_prad']) if 'koi_prad' in df.columns else {},
+            "temp_stats": safe_stats(df['koi_teq']) if 'koi_teq' in df.columns else {},
+            "insol_stats": safe_stats(df['koi_insol']) if 'koi_insol' in df.columns else {}
+        }
+        
+        # Get sample data
+        sample_df = df.head(limit).copy()
+        # Replace NaN/inf with None for JSON serialization
+        sample_df = sample_df.replace([np.inf, -np.inf], np.nan)
+        sample_data = sample_df.where(pd.notnull(sample_df), None).to_dict('records')
+        
+        return {
+            "status": "success",
+            "dataset": "kepler",
+            "statistics": stats,
+            "data": sample_data
+        }
+    except Exception as e:
+        logger.error(f"Kepler data error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/local/k2")
+async def get_k2_data(limit: int = 100):
+    """Get K2 data from local CSV"""
+    try:
+        filepath = os.path.join(DATA_DIR, "k2.csv")
+        if not os.path.exists(filepath):
+            raise HTTPException(status_code=404, detail="K2 data file not found")
+        
+        df = load_csv_skip_comments(filepath)
+        
+        def safe_stats(series):
+            clean = pd.to_numeric(series, errors='coerce').dropna()
+            clean = clean[~np.isinf(clean)]
+            if len(clean) == 0:
+                return {'min': 0, 'max': 0, 'mean': 0, 'median': 0}
+            return {
+                'min': float(clean.min()),
+                'max': float(clean.max()),
+                'mean': float(clean.mean()),
+                'median': float(clean.median())
+            }
+        
+        # K2 uses different column names - it has confirmed planets
+        discovery_methods = df['discoverymethod'].value_counts().to_dict() if 'discoverymethod' in df.columns else {}
+        disc_years = df['disc_year'].value_counts().sort_index().to_dict() if 'disc_year' in df.columns else {}
+        
+        stats = {
+            "total_records": len(df),
+            "discovery_methods": discovery_methods,
+            "discoveries_by_year": disc_years,
+            "period_stats": safe_stats(df['pl_orbper']) if 'pl_orbper' in df.columns else {},
+            "radius_stats": safe_stats(df['pl_rade']) if 'pl_rade' in df.columns else {},
+            "mass_stats": safe_stats(df['pl_bmasse']) if 'pl_bmasse' in df.columns else {},
+            "temp_stats": safe_stats(df['pl_eqt']) if 'pl_eqt' in df.columns else {},
+            "insol_stats": safe_stats(df['pl_insol']) if 'pl_insol' in df.columns else {}
+        }
+        
+        # Get sample data
+        sample_df = df.head(limit).copy()
+        sample_df = sample_df.replace([np.inf, -np.inf], np.nan)
+        sample_data = sample_df.where(pd.notnull(sample_df), None).to_dict('records')
+        
+        return {
+            "status": "success",
+            "dataset": "k2",
+            "statistics": stats,
+            "data": sample_data
+        }
+    except Exception as e:
+        logger.error(f"K2 data error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/local/tess")
+async def get_tess_data(limit: int = 100):
+    """Get TESS TOI data from local CSV"""
+    try:
+        filepath = os.path.join(DATA_DIR, "tess.csv")
+        if not os.path.exists(filepath):
+            raise HTTPException(status_code=404, detail="TESS data file not found")
+        
+        df = load_csv_skip_comments(filepath)
+        
+        def safe_stats(series):
+            clean = pd.to_numeric(series, errors='coerce').dropna()
+            clean = clean[~np.isinf(clean)]
+            if len(clean) == 0:
+                return {'min': 0, 'max': 0, 'mean': 0, 'median': 0}
+            return {
+                'min': float(clean.min()),
+                'max': float(clean.max()),
+                'mean': float(clean.mean()),
+                'median': float(clean.median())
+            }
+        
+        # TESS disposition counts
+        disposition_counts = df['tfopwg_disp'].value_counts().to_dict() if 'tfopwg_disp' in df.columns else {}
+        
+        stats = {
+            "total_records": len(df),
+            "disposition_distribution": disposition_counts,
+            "confirmed": len(df[df['tfopwg_disp'] == 'CP']) if 'tfopwg_disp' in df.columns else 0,
+            "candidates": len(df[df['tfopwg_disp'] == 'PC']) if 'tfopwg_disp' in df.columns else 0,
+            "false_positives": len(df[df['tfopwg_disp'] == 'FP']) if 'tfopwg_disp' in df.columns else 0,
+            "period_stats": safe_stats(df['pl_orbper']) if 'pl_orbper' in df.columns else {},
+            "radius_stats": safe_stats(df['pl_rade']) if 'pl_rade' in df.columns else {},
+            "temp_stats": safe_stats(df['pl_eqt']) if 'pl_eqt' in df.columns else {},
+            "insol_stats": safe_stats(df['pl_insol']) if 'pl_insol' in df.columns else {}
+        }
+        
+        # Get sample data
+        sample_df = df.head(limit).copy()
+        sample_df = sample_df.replace([np.inf, -np.inf], np.nan)
+        sample_data = sample_df.where(pd.notnull(sample_df), None).to_dict('records')
+        
+        return {
+            "status": "success",
+            "dataset": "tess",
+            "statistics": stats,
+            "data": sample_data
+        }
+    except Exception as e:
+        logger.error(f"TESS data error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/local/combined-stats")
+async def get_combined_stats():
+    """Get combined statistics from all local datasets"""
+    try:
+        total_records = 0
+        all_stats = {}
+        
+        # Kepler
+        kepler_path = os.path.join(DATA_DIR, "kepler.csv")
+        if os.path.exists(kepler_path):
+            df = load_csv_skip_comments(kepler_path)
+            kepler_confirmed = len(df[df['koi_disposition'] == 'CONFIRMED']) if 'koi_disposition' in df.columns else 0
+            kepler_candidates = len(df[df['koi_disposition'] == 'CANDIDATE']) if 'koi_disposition' in df.columns else 0
+            kepler_fp = len(df[df['koi_disposition'] == 'FALSE POSITIVE']) if 'koi_disposition' in df.columns else 0
+            all_stats['kepler'] = {
+                'total': len(df),
+                'confirmed': kepler_confirmed,
+                'candidates': kepler_candidates,
+                'false_positives': kepler_fp
+            }
+            total_records += len(df)
+        
+        # K2
+        k2_path = os.path.join(DATA_DIR, "k2.csv")
+        if os.path.exists(k2_path):
+            df = load_csv_skip_comments(k2_path)
+            all_stats['k2'] = {
+                'total': len(df),
+                'confirmed': len(df),  # K2 data is all confirmed planets
+                'discovery_methods': df['discoverymethod'].value_counts().to_dict() if 'discoverymethod' in df.columns else {}
+            }
+            total_records += len(df)
+        
+        # TESS
+        tess_path = os.path.join(DATA_DIR, "tess.csv")
+        if os.path.exists(tess_path):
+            df = load_csv_skip_comments(tess_path)
+            tess_confirmed = len(df[df['tfopwg_disp'] == 'CP']) if 'tfopwg_disp' in df.columns else 0
+            tess_candidates = len(df[df['tfopwg_disp'] == 'PC']) if 'tfopwg_disp' in df.columns else 0
+            tess_fp = len(df[df['tfopwg_disp'] == 'FP']) if 'tfopwg_disp' in df.columns else 0
+            all_stats['tess'] = {
+                'total': len(df),
+                'confirmed': tess_confirmed,
+                'candidates': tess_candidates,
+                'false_positives': tess_fp
+            }
+            total_records += len(df)
+        
+        return {
+            "status": "success",
+            "total_records": total_records,
+            "datasets": all_stats
+        }
+    except Exception as e:
+        logger.error(f"Combined stats error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

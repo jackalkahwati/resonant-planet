@@ -199,3 +199,95 @@ export const healthCheck = async () => {
   const response = await api.get('/health');
   return response.data;
 };
+
+// =====================================================
+// LOCAL CSV DATA API
+// =====================================================
+
+export interface LocalDatasetInfo {
+  name: string;
+  filename: string;
+  records: number;
+  columns: number;
+}
+
+export interface KeplerStats {
+  total_records: number;
+  disposition_distribution: Record<string, number>;
+  confirmed: number;
+  candidates: number;
+  false_positives: number;
+  period_stats: { min: number; max: number; mean: number; median: number };
+  radius_stats: { min: number; max: number; mean: number; median: number };
+  temp_stats: { min: number; max: number; mean: number; median: number };
+  insol_stats: { min: number; max: number; mean: number; median: number };
+}
+
+export interface K2Stats {
+  total_records: number;
+  discovery_methods: Record<string, number>;
+  discoveries_by_year: Record<string, number>;
+  period_stats: { min: number; max: number; mean: number; median: number };
+  radius_stats: { min: number; max: number; mean: number; median: number };
+  mass_stats: { min: number; max: number; mean: number; median: number };
+  temp_stats: { min: number; max: number; mean: number; median: number };
+  insol_stats: { min: number; max: number; mean: number; median: number };
+}
+
+export interface TessStats {
+  total_records: number;
+  disposition_distribution: Record<string, number>;
+  confirmed: number;
+  candidates: number;
+  false_positives: number;
+  period_stats: { min: number; max: number; mean: number; median: number };
+  radius_stats: { min: number; max: number; mean: number; median: number };
+  temp_stats: { min: number; max: number; mean: number; median: number };
+  insol_stats: { min: number; max: number; mean: number; median: number };
+}
+
+export interface CombinedStats {
+  total_records: number;
+  datasets: {
+    kepler?: { total: number; confirmed: number; candidates: number; false_positives: number };
+    k2?: { total: number; confirmed: number; discovery_methods: Record<string, number> };
+    tess?: { total: number; confirmed: number; candidates: number; false_positives: number };
+  };
+}
+
+export const getLocalDatasets = async (): Promise<{ datasets: LocalDatasetInfo[] }> => {
+  const response = await api.get('/local/datasets');
+  return response.data;
+};
+
+export const getKeplerData = async (limit: number = 100): Promise<{
+  dataset: string;
+  statistics: KeplerStats;
+  data: Record<string, unknown>[];
+}> => {
+  const response = await api.get(`/local/kepler?limit=${limit}`);
+  return response.data;
+};
+
+export const getK2Data = async (limit: number = 100): Promise<{
+  dataset: string;
+  statistics: K2Stats;
+  data: Record<string, unknown>[];
+}> => {
+  const response = await api.get(`/local/k2?limit=${limit}`);
+  return response.data;
+};
+
+export const getTessData = async (limit: number = 100): Promise<{
+  dataset: string;
+  statistics: TessStats;
+  data: Record<string, unknown>[];
+}> => {
+  const response = await api.get(`/local/tess?limit=${limit}`);
+  return response.data;
+};
+
+export const getCombinedStats = async (): Promise<CombinedStats> => {
+  const response = await api.get('/local/combined-stats');
+  return response.data;
+};
