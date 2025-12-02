@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowUpDown, Download, CheckCircle, XCircle, TrendingUp, TrendingDown } from "lucide-react";
 import { sampleCandidates } from "@/data/sampleCandidates";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Compare = () => {
@@ -14,16 +14,18 @@ const Compare = () => {
   const [sortField, setSortField] = useState<"probability" | "period" | "snr">("probability");
   const [sortDesc, setSortDesc] = useState(true);
 
-  const filteredCandidates = sampleCandidates
-    .filter(c => 
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.id.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      const aVal = a[sortField];
-      const bVal = b[sortField];
-      return sortDesc ? bVal - aVal : aVal - bVal;
-    });
+  const filteredCandidates = useMemo(() => 
+    sampleCandidates
+      .filter(c => 
+        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.id.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .sort((a, b) => {
+        const aVal = a[sortField];
+        const bVal = b[sortField];
+        return sortDesc ? bVal - aVal : aVal - bVal;
+      }), [searchTerm, sortField, sortDesc]
+  );
 
   const handleSort = (field: typeof sortField) => {
     if (sortField === field) {

@@ -1,14 +1,17 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "resonant-worlds-explorer",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "build:dev": "vite build --mode development",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "dev": "npm run dev --prefix exoplanet-ai/frontend",
+    "dev:backend": "cd exoplanet-ai/backend && python -m uvicorn app.main:app --reload --port 8001",
+    "dev:all": "npm run dev:backend & npm run dev",
+    "build": "npm run build --prefix exoplanet-ai/frontend",
+    "preview": "npm run preview --prefix exoplanet-ai/frontend",
+    "lint": "npm run lint --prefix exoplanet-ai/frontend",
+    "install:frontend": "npm install --prefix exoplanet-ai/frontend",
+    "install:backend": "cd exoplanet-ai/backend && pip install -r requirements.txt"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
