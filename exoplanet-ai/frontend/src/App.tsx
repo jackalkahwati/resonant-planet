@@ -7,9 +7,11 @@ import { Predict } from '@/components/pages/Predict';
 import { Upload } from '@/components/pages/Upload';
 import { Explore } from '@/components/pages/Explore';
 import { Data } from '@/components/pages/Data';
+import { Landing } from '@/components/pages/Landing';
 import { healthCheck } from '@/lib/api';
 
 function App() {
+  const [showLanding, setShowLanding] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
 
@@ -27,6 +29,11 @@ function App() {
     const interval = setInterval(checkBackend, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Show landing page first
+  if (showLanding) {
+    return <Landing onEnterApp={() => setShowLanding(false)} />;
+  }
 
   const renderContent = () => {
     switch (activeTab) {
